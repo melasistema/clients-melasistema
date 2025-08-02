@@ -39,6 +39,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Company</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Contact</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">VAT</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Earnings</th>
                                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
                                         <span class="sr-only">Edit</span>
                                     </th>
@@ -62,8 +63,12 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         <div class="text-gray-900">{{ client.vat_number }}</div>
                                         <div class="mt-1 text-gray-500">{{ client.unique_code }}</div>
                                     </td>
+                                    <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                        <div class="text-gray-900">{{ client.total_earnings }}</div>
+                                    </td>
                                     <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                        <a :href="route('clients.edit', client.id)" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, {{ client.company_name }}</span></a>
+                                        <a :href="route('clients.projects.index', client.id)" class="text-indigo-600 hover:text-indigo-900">View Projects<span class="sr-only">, {{ client.company_name }}</span></a>
+                                        <a :href="route('clients.edit', client.id)" class="ml-4 text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, {{ client.company_name }}</span></a>
                                         <button @click="() => { if (confirm('Are you sure you want to delete this client?')) { $inertia.delete(route('clients.destroy', client.id)) } }" class="ml-4 text-red-600 hover:text-red-900">Delete<span class="sr-only">, {{ client.company_name }}</span></button>
                                     </td>
                                 </tr>

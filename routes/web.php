@@ -15,5 +15,11 @@ Route::get('dashboard', function () {
 Route::resource('clients', ClientController::class)
     ->middleware(['auth', 'verified']);
 
+Route::resource('clients.projects', App\Http\Controllers\ProjectController::class)
+    ->middleware(['auth', 'verified']);
+
+Route::resource('clients.projects.tasks', App\Http\Controllers\TaskController::class)
+    ->middleware(['auth', 'verified']);
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

@@ -14,7 +14,7 @@ A freelance time-tracking application built with Laravel 12 and Vue.js, featurin
 
 1.  Clone the repository:
     ```bash
-    git clone <your-repo-url>
+    git clone melasistema/clients-melasistema
     cd clients-melasistema
     ```
 2.  Start Laravel Sail:
