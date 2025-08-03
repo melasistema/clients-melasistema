@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    environment: production # Use a GitHub Environment to manage secrets and approvals
+    environment: production
 
     steps:
       - name: Checkout code
@@ -35,28 +35,44 @@ jobs:
           npm ci
           npm run build
 
-      - name: SSH and Deploy to Server
+      - name: Clean up production files
+        # This is a critical step to ensure old files are removed.
+        # The rsync action will handle this, but it's good to have it here
+        # for a clean run. We delete everything except the .env file and storage folder.
+        run: |
+          ssh -i ~/.ssh/github_actions_deploy_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'cd clients.melasistema.com && rm -rf vendor public/js public/css public/build'
+
+      - name: Copy files to server with Rsync
+        uses: burnett01/rsync-deployments@v1.4
+        with:
+          # SSH details
+          ssh_host: ${{ secrets.SSH_HOST }}
+          ssh_user: ${{ secrets.SSH_USER }}
+          ssh_key: ${{ secrets.SSH_KEY }}
+          # The source files to copy from the GitHub runner
+          source: .
+          # The destination folder on the remote server
+          destination: clients.melasistema.com
+          # Exclude sensitive files and folders from being copied
+          exclude: ".git .gitignore .env"
+
+      - name: Run post-deployment commands on server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            # --- The Deployment Script on Your Server ---
+            # --- Deployment script on the server ---
 
             # Navigate to your application's directory
             cd clients.melasistema.com
 
-            # Set a secret named `MAINTENANCE_TOKEN` in your repository settings
+            # Place site in maintenance mode
             php artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
 
-            # Pull the latest changes from Git based on the tag
-            # We fetch all tags to ensure we have the one from the CI job
-            git fetch --tags
-            git checkout ${{ github.ref_name }}
-
-            # Update Composer dependencies
-            composer install --no-dev --optimize-autoloader
+            # Run database migrations
+            php artisan migrate --force
 
             # Clear and cache configurations
             php artisan config:cache
@@ -64,16 +80,10 @@ jobs:
             php artisan view:cache
             php artisan event:cache
 
-            # Run database migrations
-            php artisan migrate --force
-
-            # Create symbolic link for storage
+            # Create symbolic link for storage if it doesn't exist
             php artisan storage:link
 
-            # Restart any queue workers (if applicable)
-            # supervisorctl restart your-queue-worker-name:*
-
-            # Restore the site
+            # Bring site back up
             php artisan up
 
             echo "Deployment completed for tag: ${{ github.ref_name }}"
