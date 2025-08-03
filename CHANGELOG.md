@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.13](https://github.com/melasistema/clients-melasistema/compare/v0.0.12...v0.0.13) (2025-08-03)
+
+
+### Bug Fixes
+
+* **deploy:** Still try to fix SSH problems ([0f7a3cb](https://github.com/melasistema/clients-melasistema/commit/0f7a3cb9d923a520d496c68243a667d730bc7bce))
+
 ### [0.0.12](https://github.com/melasistema/clients-melasistema/compare/v0.0.11...v0.0.12) (2025-08-03)
 
 
