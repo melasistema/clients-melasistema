@@ -77,6 +77,9 @@ jobs:
             # Run database migrations
             php artisan migrate --force
 
+            # Create the symbolic link
+            php artisan storage:link
+
             # Optimize the application and clear caches
             php artisan config:cache
             php artisan route:cache
