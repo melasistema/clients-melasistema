@@ -46,6 +46,26 @@ jobs:
           echo "Host: ${{ secrets.SSH_HOST }}"
           echo "User: ${{ secrets.SSH_USER }}"
 
+      # A new diagnostic step to check permissions on the server.
+      # Incorrect permissions on the ~/.ssh directory or authorized_keys file
+      # are a very common cause of SSH key authentication failures.
+      - name: Check SSH Directory and Authorized Keys Permissions
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            echo "Checking permissions for ~/.ssh and ~/.ssh/authorized_keys"
+            ls -ld ~/.ssh
+            ls -l ~/.ssh/authorized_keys
+            echo ""
+            echo "Expected permissions:"
+            echo "- ~/.ssh should be 700 (drwx------)"
+            echo "- ~/.ssh/authorized_keys should be 600 (-rw-------) or 644 (-rw-r--r--)"
+            echo "If the permissions are not correct, you may need to fix them manually on the server."
+            echo "Example: chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys"
+
       - name: Clean production directory
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -69,7 +89,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           source: "./"
           # Direct copy to the production folder
-          target: "/www/htdocs/username/clients-melasistema.com"
+          target: "/www/htdocs/w01c7e90/clients-melasistema.com"
 
       - name: Run post-deployment commands on server
         uses: appleboy/ssh-action@v1.0.3
