@@ -52,7 +52,7 @@ jobs:
           # The source files to copy from the GitHub runner
           source: .
           # The destination folder on the remote server
-          destination: clients.melasistema.com
+          destination: /www/htdocs/w01c7e90/clients.melasistema.com/
           # Exclude sensitive files and folders from being copied
           exclude: ".git .gitignore .env"
 
