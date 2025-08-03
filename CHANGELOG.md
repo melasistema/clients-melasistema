@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.30](https://github.com/melasistema/clients-melasistema/compare/v0.0.29...v0.0.30) (2025-08-03)
+
+
+### Bug Fixes
+
+* **deploy:** Fix standard-version workflow order ([78e61f2](https://github.com/melasistema/clients-melasistema/commit/78e61f2c230440ff898ee217df92b975ecd3530d))
+
 ### [0.0.29](https://github.com/melasistema/clients-melasistema/compare/v0.0.28...v0.0.29) (2025-08-03)
 
 
