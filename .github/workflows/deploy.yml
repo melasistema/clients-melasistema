@@ -43,7 +43,7 @@ jobs:
           ssh -i ~/.ssh/github_actions_deploy_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'cd clients.melasistema.com && rm -rf vendor public/js public/css public/build'
 
       - name: Copy files to server with Rsync
-        uses: burnett01/rsync-deployments@v1.4
+        uses: burnett01/rsync-deployments@v1.5
         with:
           # SSH details
           ssh_host: ${{ secrets.SSH_HOST }}
