@@ -1,9 +1,9 @@
-name: Deploy to Production
+name: Simple Production Deployment
 
 on:
   push:
     tags:
-      - 'v*.*.*' # Trigger on any new tag that starts with 'v' followed by numbers
+      - 'v*.*.*'
 
 jobs:
   deploy:
@@ -14,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref }} # Checkout the tag, not the branch
+          ref: ${{ github.ref }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -34,32 +34,32 @@ jobs:
         run: |
           npm ci
           npm run build
+          # We'll remove these files and folders to avoid copying them
+          # to the server as they are not needed in production.
+          rm -rf .git .gitignore node_modules
 
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.8.0
+      - name: Clean production directory
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # A critical step to remove old files, but keep .env and storage.
+            # This prevents old files from being left behind and causing issues.
+            cd /www/htdocs/username/clients-melasistema.com
+            find . -mindepth 1 -maxdepth 1 ! -name .env ! -name storage -exec rm -rf {} +
+            echo "Production directory cleaned."
 
-      - name: Clean up production files
-        # A more robust approach to cleaning up files using rsync with a dummy source
-        run: |
-          rsync -av --delete --exclude '.env' --exclude 'storage' --exclude '.git' --exclude '.gitignore' /dev/null/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/www/htdocs/username/clients-melasistema.com/
-
-      - name: Copy files to server with Rsync
-        uses: burnett01/rsync-deployments@v1.5
+      - name: Copy files to server with SCP
+        uses: appleboy/scp-action@master
         with:
-          # SSH details
-          ssh_host: ${{ secrets.SSH_HOST }}
-          ssh_user: ${{ secrets.SSH_USER }}
-          ssh_key: ${{ secrets.SSH_KEY }}
-          # The source files to copy from the GitHub runner
-          source: .
-          # The destination folder on the remote server
-          destination: /www/htdocs/w01c7e90/clients-melasistema.com
-          # Exclude sensitive files and folders from being copied
-          exclude: ".git .gitignore .env"
-          # Adding these options to ensure host key verification doesn't fail
-          ssh_opts: '-o StrictHostKeyChecking=no'
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "./"
+          # Direct copy to the production folder
+          target: "/www/htdocs/username/clients-melasistema.com"
 
       - name: Run post-deployment commands on server
         uses: appleboy/ssh-action@v1.0.3
@@ -71,7 +71,7 @@ jobs:
             # --- Deployment script on the server ---
 
             # Navigate to your application's directory
-            cd /www/htdocs/username/clients-melasistema.com
+            cd /www/htdocs/w01c7e90/clients-melasistema.com
 
             # Place site in maintenance mode
             php artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
