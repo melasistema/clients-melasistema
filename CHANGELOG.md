@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.25](https://github.com/melasistema/clients-melasistema/compare/v0.0.24...v0.0.25) (2025-08-03)
+
+
+### Bug Fixes
+
+* **deploy:** Fix folder name ([1ad1a4a](https://github.com/melasistema/clients-melasistema/commit/1ad1a4a750899a8e8ce86ff269a62a25ce2f1495))
+* **deploy:** Fix folder name ([f2d6b01](https://github.com/melasistema/clients-melasistema/commit/f2d6b01e77931939320792a3f248c761cf9575bd))
+
 ### [0.0.24](https://github.com/melasistema/clients-melasistema/compare/v0.0.23...v0.0.24) (2025-08-03)
 
 ### [0.0.23](https://github.com/melasistema/clients-melasistema/compare/v0.0.22...v0.0.23) (2025-08-03)
