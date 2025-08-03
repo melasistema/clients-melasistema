@@ -1,125 +1,94 @@
-name: Simple Production Deployment
+# This workflow deploys a Laravel application to a production server
+# using SSH and SCP for a robust and secure CI/CD pipeline.
+name: Deploy Laravel Application
 
 on:
   push:
-    tags:
-      - 'v*.*.*'
+    # This workflow will run on pushes to the 'main' branch
+    branches: [ main ]
 
 jobs:
   deploy:
+    # The job runs on the latest version of Ubuntu
     runs-on: ubuntu-latest
-    environment: production
 
     steps:
       - name: Checkout code
+        # Uses the official action to check out your repository code
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
 
       - name: Setup PHP
+        # Sets up the specified PHP version and extensions needed for your application
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.4'
           extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, redis
 
       - name: Install Composer dependencies
+        # Installs production-only dependencies
         run: composer install --no-dev --optimize-autoloader
 
       - name: Setup Node.js
+        # Sets up Node.js for building frontend assets
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install NPM dependencies and build assets
+        # Installs NPM dependencies and builds the production assets on the runner
         run: |
           npm ci
           npm run build
-          # We'll remove these files and folders to avoid copying them
-          # to the server as they are not needed in production.
+          # The node_modules and other unneeded files are removed
+          # to keep the deployment package as small as possible.
           rm -rf .git .gitignore node_modules
 
-      # This is a diagnostic step to confirm the SSH key secret is being passed.
-      # The key will be masked in the logs, but it confirms the variable is not empty.
-      - name: SSH Key Diagnostics
-        run: |
-          echo "SSH_KEY is present in secrets: ${{ secrets.SSH_KEY != '' }}"
-          echo "Host: ${{ secrets.SSH_HOST }}"
-          echo "User: ${{ secrets.SSH_USER }}"
+      - name: Run tests
+        # A crucial step to run your tests before deployment
+        run: php artisan test
 
-      # A new diagnostic step to check permissions on the server.
-      # Incorrect permissions on the ~/.ssh directory or authorized_keys file
-      # are a very common cause of SSH key authentication failures.
-      - name: Check SSH Directory and Authorized Keys Permissions
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            echo "Checking permissions for ~/.ssh and ~/.ssh/authorized_keys"
-            ls -ld ~/.ssh
-            ls -l ~/.ssh/authorized_keys
-            echo ""
-            echo "Expected permissions:"
-            echo "- ~/.ssh should be 700 (drwx------)"
-            echo "- ~/.ssh/authorized_keys should be 600 (-rw-------) or 644 (-rw-r--r--)"
-            echo "If the permissions are not correct, you may need to fix them manually on the server."
-            echo "Example: chmod 700 ~/.ssh && chmod 600 ~/.ssh/authorized_keys"
-
-      - name: Clean production directory
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          # The key must be explicitly passed to this action.
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            # A critical step to remove old files, but keep .env and storage.
-            # This prevents old files from being left behind and causing issues.
-            cd /www/htdocs/w01c7e90/clients-melasistema.com
-            find . -mindepth 1 -maxdepth 1 ! -name .env ! -name storage -exec rm -rf {} +
-            echo "Production directory cleaned."
-
-      - name: Copy files to server with SCP
+      - name: Deploy with SCP
+        # This action uses SCP to copy the entire codebase to the server
+        # It's more reliable than `git pull` on the server as it ensures
+        # the exact code built on the runner is deployed.
         uses: appleboy/scp-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          # The key must be explicitly passed to this action.
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "./"
-          # Direct copy to the production folder
+          # The real file path provided by the user
           target: "/www/htdocs/w01c7e90/clients-melasistema.com"
 
       - name: Run post-deployment commands on server
-        uses: appleboy/ssh-action@v1.0.3
+        # This action runs a series of commands on the production server
+        uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          # The key must be explicitly passed to this action.
-          key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            # --- Deployment script on the server ---
-
-            # Navigate to your application's directory
+            # Navigate to the application directory using the real path
             cd /www/htdocs/w01c7e90/clients-melasistema.com
 
-            # Place site in maintenance mode
+            # Place the site in maintenance mode to prevent issues during migrations
+            # A secret token can be used to bypass the maintenance page if needed
             php artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
 
             # Run database migrations
             php artisan migrate --force
 
-            # Clear and cache configurations
+            # Optimize the application and clear caches
             php artisan config:cache
             php artisan route:cache
             php artisan view:cache
             php artisan event:cache
 
-            # Create symbolic link for storage if it doesn't exist
-            php artisan storage:link
+            # Restart any queue workers (e.g., Laravel Horizon)
+            sudo supervisorctl restart laravel-worker:*
 
-            # Bring site back up
+            # Bring the site back up
             php artisan up
 
-            echo "Deployment completed for tag: ${{ github.ref_name }}"
+            echo "Deployment completed successfully!"
+
