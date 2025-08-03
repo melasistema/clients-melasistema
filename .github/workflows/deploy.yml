@@ -1,0 +1,80 @@
+name: Deploy to Production
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Trigger on any new tag that starts with 'v' followed by numbers
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production # Use a GitHub Environment to manage secrets and approvals
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }} # Checkout the tag, not the branch
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, redis
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install NPM dependencies and build assets
+        run: |
+          npm ci
+          npm run build
+
+      - name: SSH and Deploy to Server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # --- The Deployment Script on Your Server ---
+
+            # Navigate to your application's directory
+            cd /var/www/clients-melasistema
+            cd /www/htdocs/w01c7e90/clients.melasistema.com/
+
+            # Set a secret named `MAINTENANCE_TOKEN` in your repository settings
+            php artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
+
+            # Pull the latest changes from Git based on the tag
+            # We fetch all tags to ensure we have the one from the CI job
+            git fetch --tags
+            git checkout ${{ github.ref_name }}
+
+            # Update Composer dependencies
+            composer install --no-dev --optimize-autoloader
+
+            # Clear and cache configurations
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+
+            # Run database migrations
+            php artisan migrate --force
+
+            # Create symbolic link for storage
+            php artisan storage:link
+
+            # Restart any queue workers (if applicable)
+            # supervisorctl restart your-queue-worker-name:*
+
+            # Restore the site
+            php artisan up
+
+            echo "Deployment completed for tag: ${{ github.ref_name }}"
