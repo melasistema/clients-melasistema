@@ -38,12 +38,20 @@ jobs:
           # to the server as they are not needed in production.
           rm -rf .git .gitignore node_modules
 
+      # The following step loads the SSH private key into a secure agent.
+      # This is the most reliable way to authenticate with the server.
+      - name: Add SSH key to agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
       - name: Clean production directory
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          # The key is now handled by the ssh-agent, so we don't need to specify it here.
+          # key: ${{ secrets.SSH_KEY }}
           script: |
             # A critical step to remove old files, but keep .env and storage.
             # This prevents old files from being left behind and causing issues.
@@ -56,7 +64,8 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          # The key is now handled by the ssh-agent, so we don't need to specify it here.
+          # key: ${{ secrets.SSH_KEY }}
           source: "./"
           # Direct copy to the production folder
           target: "/www/htdocs/username/clients-melasistema.com"
@@ -66,12 +75,13 @@ jobs:
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          # The key is now handled by the ssh-agent, so we don't need to specify it here.
+          # key: ${{ secrets.SSH_KEY }}
           script: |
             # --- Deployment script on the server ---
 
             # Navigate to your application's directory
-            cd /www/htdocs/w01c7e90/clients-melasistema.com
+            cd /www/htdocs/username/clients-melasistema.com
 
             # Place site in maintenance mode
             php artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
