@@ -68,7 +68,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             # Navigate to the application directory using the real path
-            cd /www/htdocs/w01c7e90/clients-melasistema.com
+            cd /www/htdocs/w01c7e90/clients.melasistema.com
 
             # Place the site in maintenance mode to prevent issues during migrations
             # A secret token can be used to bypass the maintenance page if needed
