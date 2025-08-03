@@ -2,17 +2,40 @@
 import AppLayout from '@/layouts/AppLayout.vue';
 import { useForm } from '@inertiajs/vue3';
 import { type BreadcrumbItem } from '@/types';
+import { computed } from 'vue';
 
 const props = defineProps<{ client: any; project: any; task: any }>();
 
 const form = useForm({
     description: props.task.description,
-    minutes: props.task.minutes,
+    total_seconds: props.task.total_seconds,
 });
 
 const submit = () => {
     form.put(route('clients.projects.tasks.update', [props.client.id, props.project.id, props.task.id]));
 };
+
+const formattedTime = computed({
+    get: () => {
+        const totalSeconds = form.total_seconds;
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    },
+    set: (value: string) => {
+        const parts = value.split(':').map(Number);
+        let totalSeconds = 0;
+        if (parts.length === 3) {
+            totalSeconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+        } else if (parts.length === 2) {
+            totalSeconds = parts[0] * 60 + parts[1];
+        } else if (parts.length === 1) {
+            totalSeconds = parts[0];
+        }
+        form.total_seconds = totalSeconds;
+    },
+});
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -54,9 +77,9 @@ const breadcrumbs: BreadcrumbItem[] = [
                         </div>
 
                         <div>
-                            <label for="minutes" class="block text-sm font-medium text-gray-700">Minutes</label>
+                            <label for="total_seconds" class="block text-sm font-medium text-gray-700">Time (HH:MM:SS)</label>
                             <div class="mt-1">
-                                <input v-model="form.minutes" type="number" name="minutes" id="minutes" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
+                                <input v-model="formattedTime" type="text" name="total_seconds" id="total_seconds" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" placeholder="00:00:00" />
                             </div>
                         </div>
                     </div>

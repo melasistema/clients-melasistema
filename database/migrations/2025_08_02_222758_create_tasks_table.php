@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('project_id')->constrained()->onDelete('cascade');
             $table->string('description');
-            $table->integer('minutes');
+            $table->integer('total_seconds')->default(0);
+            $table->boolean('is_running')->default(false);
+            $table->timestamp('timer_started_at')->nullable();
             $table->timestamps();
         });
     }
