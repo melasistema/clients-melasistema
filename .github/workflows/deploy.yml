@@ -4,8 +4,8 @@ name: Deploy Laravel Application
 
 on:
   push:
-    # This workflow will run on pushes to the 'main' branch
-    branches: [ main ]
+    # This workflow will run on pushes to the 'master' branch
+    branches: [ master ]
 
 jobs:
   deploy:
@@ -32,7 +32,7 @@ jobs:
         # Sets up Node.js for building frontend assets
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
       - name: Install NPM dependencies and build assets
         # Installs NPM dependencies and builds the production assets on the runner
