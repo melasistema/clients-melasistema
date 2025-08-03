@@ -47,15 +47,15 @@ jobs:
           rm -rf .git .gitignore node_modules
 
       - name: Deploy with SCP
-        # This action uses SCP to copy the entire codebase to the server
-        # It's more reliable than `git pull` on the server as it ensures
-        # the exact code built on the runner is deployed.
+        # This action uses SCP to copy the entire codebase to the server.
+        # The wildcard `*` at the end of the source path ensures that
+        # only the contents of the directory are copied, not the directory itself.
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "./"
+          source: "./*"
           # The real file path provided by the user
           target: "/www/htdocs/w01c7e90/clients-melasistema.com"
 
