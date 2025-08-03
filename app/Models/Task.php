@@ -10,7 +10,13 @@ class Task extends Model
 {
     protected $fillable = [
         'description',
-        'minutes',
+        'total_seconds',
+        'is_running',
+        'timer_started_at',
+    ];
+
+    protected $casts = [
+        'timer_started_at' => 'datetime',
     ];
 
     public function project(): BelongsTo

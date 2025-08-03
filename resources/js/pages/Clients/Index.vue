@@ -64,7 +64,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                         <div class="mt-1 text-gray-500">{{ client.unique_code }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                        <div class="text-gray-900">{{ client.total_earnings }}</div>
+                                        <div class="text-gray-900">€{{ client.total_earnings.toFixed(2) }}</div>
                                     </td>
                                     <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                         <a :href="route('clients.projects.index', client.id)" class="text-indigo-600 hover:text-indigo-900">View Projects<span class="sr-only">, {{ client.company_name }}</span></a>

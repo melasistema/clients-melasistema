@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Models\Task;
 use Inertia\Response;
 
 class TaskController extends Controller
@@ -40,12 +41,12 @@ class TaskController extends Controller
     {
         $request->validate([
             'description' => 'required|string',
-            'minutes' => 'required|integer|min:0',
+            'total_seconds' => 'required|integer|min:0',
         ]);
 
         $project->tasks()->create([
             'description' => $request->description,
-            'minutes' => $request->minutes,
+            'total_seconds' => $request->total_seconds,
         ]);
 
         return redirect()->route('clients.projects.tasks.index', [$client->id, $project->id]);
@@ -78,12 +79,12 @@ class TaskController extends Controller
     {
         $request->validate([
             'description' => 'required|string',
-            'minutes' => 'required|integer|min:0',
+            'total_seconds' => 'required|integer|min:0',
         ]);
 
         $task->update([
             'description' => $request->description,
-            'minutes' => $request->minutes,
+            'total_seconds' => $request->total_seconds,
         ]);
 
         return redirect()->route('clients.projects.tasks.index', [$client->id, $project->id]);
@@ -97,5 +98,29 @@ class TaskController extends Controller
         $task->delete();
 
         return redirect()->route('clients.projects.tasks.index', [$client->id, $project->id]);
+    }
+
+    public function startTimer(Client $client, Project $project, Task $task)
+    {
+        $task->update([
+            'is_running' => true,
+            'timer_started_at' => now(),
+        ]);
+
+        return redirect()->back();
+    }
+
+    public function stopTimer(Client $client, Project $project, Task $task)
+    {
+        $secondsToAdd = $task->timer_started_at->diffInSeconds(now());
+        $newTotalSeconds = $task->total_seconds + $secondsToAdd;
+
+        $task->update([
+            'is_running' => false,
+            'timer_started_at' => null,
+            'total_seconds' => $newTotalSeconds,
+        ]);
+
+        return redirect()->back();
     }
 }

@@ -15,7 +15,7 @@ class ClientController extends Controller
     public function index(): Response
     {
         return Inertia::render('Clients/Index', [
-            'clients' => Client::all(),
+            'clients' => auth()->user()->clients,
         ]);
     }
 
@@ -50,6 +50,7 @@ class ClientController extends Controller
             'address' => $request->address,
             'vat_number' => $request->vat_number,
             'unique_code' => $request->unique_code,
+            'user_id' => auth()->id(),
         ]);
 
         return redirect()->route('clients.index');

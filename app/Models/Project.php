@@ -15,7 +15,7 @@ class Project extends Model
         'paid_at',
     ];
 
-    protected $appends = ['total_minutes', 'total_earnings'];
+    protected $appends = ['total_seconds', 'total_earnings'];
 
     public function client(): BelongsTo
     {
@@ -27,13 +27,13 @@ class Project extends Model
         return $this->hasMany(Task::class);
     }
 
-    public function getTotalMinutesAttribute(): int
+    public function getTotalSecondsAttribute(): int
     {
-        return $this->tasks->sum('minutes');
+        return $this->tasks->sum('total_seconds');
     }
 
     public function getTotalEarningsAttribute(): float
     {
-        return ($this->total_minutes / 60) * $this->hourly_rate;
+        return ($this->total_seconds / 3600) * $this->hourly_rate;
     }
 }

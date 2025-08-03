@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Client extends Model
 {
@@ -15,6 +16,7 @@ class Client extends Model
         'address',
         'vat_number',
         'unique_code',
+        'user_id',
     ];
 
     protected $appends = ['total_earnings'];
@@ -22,6 +24,11 @@ class Client extends Model
     public function projects(): HasMany
     {
         return $this->hasMany(Project::class);
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function getTotalEarningsAttribute(): float

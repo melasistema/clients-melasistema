@@ -4,6 +4,14 @@ import { type BreadcrumbItem } from '@/types';
 import { computed } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 
+const formatSeconds = (totalSeconds: number) => {
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+};
+
 const props = defineProps<{ client: any; projects: any[] }>();
 
 const breadcrumbs = computed<BreadcrumbItem[]>(() => [
@@ -52,7 +60,7 @@ const form = useForm({});
                                 <tr>
                                     <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Project Name</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Hourly Rate</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Minutes</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Time</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Earnings</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Paid At</th>
                                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
@@ -74,10 +82,10 @@ const form = useForm({});
                                         <div class="text-gray-900">{{ project.hourly_rate }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                        <div class="text-gray-900">{{ project.total_minutes }}</div>
+                                        <div class="text-gray-900">{{ formatSeconds(project.total_seconds) }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                        <div class="text-gray-900">{{ project.total_earnings }}</div>
+                                        <div class="text-gray-900">€{{ project.total_earnings.toFixed(2) }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                                         <div class="text-gray-900">{{ project.paid_at }}</div>

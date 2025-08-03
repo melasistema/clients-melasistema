@@ -21,5 +21,13 @@ Route::resource('clients.projects', App\Http\Controllers\ProjectController::clas
 Route::resource('clients.projects.tasks', App\Http\Controllers\TaskController::class)
     ->middleware(['auth', 'verified']);
 
+Route::post('clients/{client}/projects/{project}/tasks/{task}/start-timer', [App\Http\Controllers\TaskController::class, 'startTimer'])
+    ->middleware(['auth', 'verified'])
+    ->name('clients.projects.tasks.startTimer');
+
+Route::post('clients/{client}/projects/{project}/tasks/{task}/stop-timer', [App\Http\Controllers\TaskController::class, 'stopTimer'])
+    ->middleware(['auth', 'verified'])
+    ->name('clients.projects.tasks.stopTimer');
+
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
