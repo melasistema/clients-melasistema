@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.28](https://github.com/melasistema/clients-melasistema/compare/v0.0.27...v0.0.28) (2025-08-03)
+
+
+### Bug Fixes
+
+* **logo:** Remove default logo ([d6be636](https://github.com/melasistema/clients-melasistema/commit/d6be6368f0383b0e65cf0c63b70520b03c834225))
+
 ### [0.0.27](https://github.com/melasistema/clients-melasistema/compare/v0.0.26...v0.0.27) (2025-08-03)
 
 
