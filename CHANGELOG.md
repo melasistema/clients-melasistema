@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.31](https://github.com/melasistema/clients-melasistema/compare/v0.0.30...v0.0.31) (2025-08-03)
+
+
+### Features
+
+* **deploy:** Add PAT_TOKEN ([50c6bcd](https://github.com/melasistema/clients-melasistema/commit/50c6bcdc08d3806b1b16c68d2bc6d48b3fc6a159))
+
 ### [0.0.30](https://github.com/melasistema/clients-melasistema/compare/v0.0.29...v0.0.30) (2025-08-03)
 
 
