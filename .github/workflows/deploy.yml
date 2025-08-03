@@ -45,7 +45,7 @@ jobs:
             # --- The Deployment Script on Your Server ---
 
             # Navigate to your application's directory
-            cd /www/htdocs/w01c7e90/clients.melasistema.com/
+            cd clients.melasistema.com
 
             # Set a secret named `MAINTENANCE_TOKEN` in your repository settings
             php artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
