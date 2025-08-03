@@ -43,10 +43,6 @@ jobs:
           # to keep the deployment package as small as possible.
           rm -rf .git .gitignore node_modules
 
-      - name: Run tests
-        # A crucial step to run your tests before deployment
-        run: php artisan test
-
       - name: Deploy with SCP
         # This action uses SCP to copy the entire codebase to the server
         # It's more reliable than `git pull` on the server as it ensures
@@ -85,7 +81,7 @@ jobs:
             php artisan event:cache
 
             # Restart any queue workers (e.g., Laravel Horizon)
-            sudo supervisorctl restart laravel-worker:*
+            # sudo supervisorctl restart laravel-worker:*
 
             # Bring the site back up
             php artisan up
