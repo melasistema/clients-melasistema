@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.9](https://github.com/melasistema/clients-melasistema/compare/v0.0.8...v0.0.9) (2025-08-03)
+
+
+### Bug Fixes
+
+* **deploy:** Still try to make deployment script works as intended ([737ef97](https://github.com/melasistema/clients-melasistema/commit/737ef970b546a7c9572fc1659f34eedc1c4fcf02))
+
 ### [0.0.8](https://github.com/melasistema/clients-melasistema/compare/v0.0.7...v0.0.8) (2025-08-03)
 
 
