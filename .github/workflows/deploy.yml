@@ -35,12 +35,15 @@ jobs:
           npm ci
           npm run build
 
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
       - name: Clean up production files
-        # This is a critical step to ensure old files are removed.
-        # The rsync action will handle this, but it's good to have it here
-        # for a clean run. We delete everything except the .env file and storage folder.
+        # A more robust approach to cleaning up files using rsync with a dummy source
         run: |
-          ssh -i ~/.ssh/github_actions_deploy_rsa -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} 'cd clients.melasistema.com && rm -rf vendor public/js public/css public/build'
+          rsync -av --delete --exclude '.env' --exclude 'storage' --exclude '.git' --exclude '.gitignore' /dev/null/ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:/www/htdocs/username/clients-melasistema.com/
 
       - name: Copy files to server with Rsync
         uses: burnett01/rsync-deployments@v1.5
@@ -52,9 +55,11 @@ jobs:
           # The source files to copy from the GitHub runner
           source: .
           # The destination folder on the remote server
-          destination: /www/htdocs/w01c7e90/clients.melasistema.com/
+          destination: /www/htdocs/w01c7e90/clients-melasistema.com
           # Exclude sensitive files and folders from being copied
           exclude: ".git .gitignore .env"
+          # Adding these options to ensure host key verification doesn't fail
+          ssh_opts: '-o StrictHostKeyChecking=no'
 
       - name: Run post-deployment commands on server
         uses: appleboy/ssh-action@v1.0.3
@@ -66,7 +71,7 @@ jobs:
             # --- Deployment script on the server ---
 
             # Navigate to your application's directory
-            cd clients.melasistema.com
+            cd /www/htdocs/username/clients-melasistema.com
 
             # Place site in maintenance mode
             php artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
