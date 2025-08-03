@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.27](https://github.com/melasistema/clients-melasistema/compare/v0.0.26...v0.0.27) (2025-08-03)
+
+
+### Features
+
+* **components:** Add logo ([7471231](https://github.com/melasistema/clients-melasistema/commit/747123176cc0559513bd9c84c7219bcb7301bd15))
+* **deploy:** add symbolic link to deploy workflow ([7b97727](https://github.com/melasistema/clients-melasistema/commit/7b9772730c55466fcead78d42be71f934361018a))
+
 ### [0.0.26](https://github.com/melasistema/clients-melasistema/compare/v0.0.25...v0.0.26) (2025-08-03)
 
 ### [0.0.25](https://github.com/melasistema/clients-melasistema/compare/v0.0.24...v0.0.25) (2025-08-03)
