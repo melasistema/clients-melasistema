@@ -19,6 +19,10 @@ jobs:
       - name: Checkout code
         # Uses the official action to check out your repository code
         uses: actions/checkout@v4
+        # Adds a fetch-depth of 0 to get the full history, which is
+        # required for standard-version to work correctly.
+        with:
+          fetch-depth: 0
 
       - name: Setup PHP
         # Sets up the specified PHP version and extensions needed for your application
@@ -45,6 +49,19 @@ jobs:
           # The node_modules and other unneeded files are removed
           # to keep the deployment package as small as possible.
           rm -rf .git .gitignore node_modules
+
+      - name: Run standard-version and create a release
+        # This step uses standard-version to automatically bump the version,
+        # create a CHANGELOG.md, and create a git tag.
+        # This is a good practice to automate versioning and release notes.
+        run: |
+          # Configure Git user for the commit
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # Run standard-version to update version and changelog
+          npx standard-version
+          # Push the new commit and tag back to the repository
+          git push --follow-tags
 
       - name: Deploy with SCP
         # This action uses SCP to copy the entire codebase to the server.
