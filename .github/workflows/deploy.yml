@@ -11,6 +11,9 @@ jobs:
   deploy:
     # The job runs on the latest version of Ubuntu
     runs-on: ubuntu-latest
+    # This specifies the 'production' environment, which is required
+    # to access secrets scoped to that environment.
+    environment: production
 
     steps:
       - name: Checkout code
