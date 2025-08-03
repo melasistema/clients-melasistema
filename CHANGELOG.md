@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.11](https://github.com/melasistema/clients-melasistema/compare/v0.0.10...v0.0.11) (2025-08-03)
+
+
+### Bug Fixes
+
+* **deploy:** Try to let agents handle the ssh key ([114fa62](https://github.com/melasistema/clients-melasistema/commit/114fa62b3fb5560e1885c7ccb35bb65724bd8774))
+
 ### [0.0.10](https://github.com/melasistema/clients-melasistema/compare/v0.0.9...v0.0.10) (2025-08-03)
 
 
