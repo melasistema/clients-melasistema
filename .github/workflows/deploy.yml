@@ -23,19 +23,19 @@ jobs:
         # required for standard-version to work correctly.
         with:
           fetch-depth: 0
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Run standard-version and create a release
         # This step uses standard-version to automatically bump the version,
         # create a CHANGELOG.md, and create a git tag.
-        # This is a good practice to automate versioning and release notes.
         run: |
           # Configure Git user for the commit
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # Run standard-version to update version and changelog
           npx standard-version
-          # Push the new commit and tag back to the repository
-          git push --follow-tags
+          # Push the new commit and tag back to the repository using the PAT_TOKEN
+          git push https://x-access-token:${{ secrets.PAT_TOKEN }}@github.com/${{ github.repository }}.git --follow-tags
 
       - name: Setup PHP
         # Sets up the specified PHP version and extensions needed for your application
