@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.8](https://github.com/melasistema/clients-melasistema/compare/v0.0.7...v0.0.8) (2025-08-03)
+
+
+### Bug Fixes
+
+* **deploy:** Use burnett01 v.1.5 ([7fbe669](https://github.com/melasistema/clients-melasistema/commit/7fbe66943045ab481d3fd5659bc2fc59b246ef1d))
+
 ### [0.0.7](https://github.com/melasistema/clients-melasistema/compare/v0.0.6...v0.0.7) (2025-08-03)
 
 
