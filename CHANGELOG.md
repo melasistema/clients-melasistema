@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.7](https://github.com/melasistema/clients-melasistema/compare/v0.0.6...v0.0.7) (2025-08-03)
+
+
+### Bug Fixes
+
+* **deploy:** Add absolute server path ([635364c](https://github.com/melasistema/clients-melasistema/commit/635364c258eedba039c0216a2128cc84c5333cf0))
+* **deploy:** Fix deploy for actual simple server ([b4cdd3c](https://github.com/melasistema/clients-melasistema/commit/b4cdd3c659ba498334293beacb99eaf5ceb708d7))
+
 ### [0.0.6](https://github.com/melasistema/clients-melasistema/compare/v0.0.5...v0.0.6) (2025-08-03)
 
 ### [0.0.5](https://github.com/melasistema/clients-melasistema/compare/v0.0.4...v0.0.5) (2025-08-03)
