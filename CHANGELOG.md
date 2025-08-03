@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<<<<<<< .merge_file_Cu2C2Q
+=======
+### [0.0.39](https://github.com/melasistema/clients-melasistema/compare/v0.0.38...v0.0.39) (2025-08-03)
+
+### [0.0.38](https://github.com/melasistema/clients-melasistema/compare/v0.0.37...v0.0.38) (2025-08-03)
+
+### [0.0.37](https://github.com/melasistema/clients-melasistema/compare/v0.0.36...v0.0.37) (2025-08-03)
+
+### [0.0.36](https://github.com/melasistema/clients-melasistema/compare/v0.0.35...v0.0.36) (2025-08-03)
+
+### [0.0.35](https://github.com/melasistema/clients-melasistema/compare/v0.0.34...v0.0.35) (2025-08-03)
+
+### [0.0.34](https://github.com/melasistema/clients-melasistema/compare/v0.0.33...v0.0.34) (2025-08-03)
+
+### [0.0.33](https://github.com/melasistema/clients-melasistema/compare/v0.0.32...v0.0.33) (2025-08-03)
+
+### [0.0.32](https://github.com/melasistema/clients-melasistema/compare/v0.0.31...v0.0.32) (2025-08-03)
+
+>>>>>>> .merge_file_Fr1d7E
 ### [0.0.31](https://github.com/melasistema/clients-melasistema/compare/v0.0.30...v0.0.31) (2025-08-03)
 
 

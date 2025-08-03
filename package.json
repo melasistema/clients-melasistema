@@ -1,6 +1,10 @@
 {
     "name": "clients-melasistema",
+<<<<<<< HEAD
     "version": "0.0.31",
+=======
+    "version": "0.0.39",
+>>>>>>> a55464f594d789799b02e1de9261fd4b86b4fbe1
     "description": "...",
     "private": true,
     "type": "module",
