@@ -57,7 +57,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           source: "./*"
           # The real file path provided by the user
-          target: "/www/htdocs/w01c7e90/clients-melasistema.com"
+          target: "/www/htdocs/w01c7e90/clients.melasistema.com"
 
       - name: Run post-deployment commands on server
         # This action runs a series of commands on the production server
