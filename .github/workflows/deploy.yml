@@ -38,13 +38,13 @@ jobs:
           # to the server as they are not needed in production.
           rm -rf .git .gitignore node_modules
 
-      # The following step adds the SSH private key to a secure agent.
-      # While the appleboy actions can take the key directly, this is good
-      # practice for any custom scripts that might use the native ssh command.
-      - name: Add SSH key to agent
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+      # This is a diagnostic step to confirm the SSH key secret is being passed.
+      # The key will be masked in the logs, but it confirms the variable is not empty.
+      - name: SSH Key Diagnostics
+        run: |
+          echo "SSH_KEY is present in secrets: ${{ secrets.SSH_KEY != '' }}"
+          echo "Host: ${{ secrets.SSH_HOST }}"
+          echo "User: ${{ secrets.SSH_USER }}"
 
       - name: Clean production directory
         uses: appleboy/ssh-action@v1.0.3
@@ -56,7 +56,7 @@ jobs:
           script: |
             # A critical step to remove old files, but keep .env and storage.
             # This prevents old files from being left behind and causing issues.
-            cd /www/htdocs/username/clients-melasistema.com
+            cd /www/htdocs/w01c7e90/clients-melasistema.com
             find . -mindepth 1 -maxdepth 1 ! -name .env ! -name storage -exec rm -rf {} +
             echo "Production directory cleaned."
 
