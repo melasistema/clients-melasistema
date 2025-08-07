@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.54](https://github.com/melasistema/clients-melasistema/compare/v0.0.53...v0.0.54) (2025-08-07)
+
+
+### Features
+
+* **auth:** Disable user registration ([47e7cb2](https://github.com/melasistema/clients-melasistema/commit/47e7cb234d7af5496ec7dc42492b3cbf17a09779))
+
 ### [0.0.53](https://github.com/melasistema/clients-melasistema/compare/v0.0.52...v0.0.53) (2025-08-03)
 
 ### [0.0.52](https://github.com/melasistema/clients-melasistema/compare/v0.0.51...v0.0.52) (2025-08-03)
