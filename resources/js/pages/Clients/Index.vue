@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
+import { useForm } from '@inertiajs/vue3';
 
 defineProps<{ clients: any[] }>();
 
@@ -10,6 +11,14 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/clients',
     },
 ];
+
+const form = useForm({});
+
+const deleteClient = (clientId: number) => {
+    if (typeof window !== 'undefined' && window.confirm('Are you sure you want to delete this client?')) {
+        form.delete(route('clients.destroy', clientId));
+    }
+};
 </script>
 
 <template>
@@ -69,7 +78,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                                     <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                         <a :href="route('clients.projects.index', client.id)" class="text-indigo-600 hover:text-indigo-900">View Projects<span class="sr-only">, {{ client.company_name }}</span></a>
                                         <a :href="route('clients.edit', client.id)" class="ml-4 text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, {{ client.company_name }}</span></a>
-                                        <button @click="() => { if (confirm('Are you sure you want to delete this client?')) { $inertia.delete(route('clients.destroy', client.id)) } }" class="ml-4 text-red-600 hover:text-red-900">Delete<span class="sr-only">, {{ client.company_name }}</span></button>
+                                        <button @click="deleteClient(client.id)" class="ml-4 text-red-600 hover:text-red-900">Delete<span class="sr-only">, {{ client.company_name }}</span></button>
                                     </td>
                                 </tr>
                             </tbody>
