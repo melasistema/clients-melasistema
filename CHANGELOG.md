@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.55](https://github.com/melasistema/clients-melasistema/compare/v0.0.54...v0.0.55) (2025-08-08)
+
+
+### Features
+
+* **clients:** Enable client deletion ([8efcc4a](https://github.com/melasistema/clients-melasistema/commit/8efcc4a392250659a21863e76c6a9cb993f98fea))
+
 ### [0.0.54](https://github.com/melasistema/clients-melasistema/compare/v0.0.53...v0.0.54) (2025-08-07)
 
 
