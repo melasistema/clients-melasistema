@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.56](https://github.com/melasistema/clients-melasistema/compare/v0.0.55...v0.0.56) (2025-08-19)
+
+
+### Features
+
+* **earnings:** Calculate and display earnings for tasks, projects, and client ([39704e1](https://github.com/melasistema/clients-melasistema/commit/39704e11867d1c767517ae27504a040421a9f0a8))
+
 ### [0.0.55](https://github.com/melasistema/clients-melasistema/compare/v0.0.54...v0.0.55) (2025-08-08)
 
 
