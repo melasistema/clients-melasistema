@@ -74,6 +74,10 @@ const formatSeconds = (totalSeconds: number) => {
 
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
+
+const formatEarnings = (totalEarnings: number) => {
+    return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(totalEarnings);
+};
 </script>
 
 <template>
@@ -103,6 +107,7 @@ const formatSeconds = (totalSeconds: number) => {
                                     <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Description</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Time</th>
                                     <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Timer</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Task Earnings</th>
                                     <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
                                         <span class="sr-only">Edit</span>
                                     </th>
@@ -123,6 +128,9 @@ const formatSeconds = (totalSeconds: number) => {
                                     <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                                         <div v-if="task.is_running" class="text-green-600">Running ({{ formatTime(task.timer_started_at) }})</div>
                                         <div v-else class="text-gray-500">Stopped</div>
+                                    </td>
+                                    <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
+                                        <div class="text-gray-900">{{ formatEarnings(task.this_task_total_entry) }}</div>
                                     </td>
                                     <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
                                         <a :href="route('clients.projects.tasks.edit', [client.id, project.id, task.id])" class="text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, {{ task.description }}</span></a>

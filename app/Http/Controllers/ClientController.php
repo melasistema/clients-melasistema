@@ -15,7 +15,7 @@ class ClientController extends Controller
     public function index(): Response
     {
         return Inertia::render('Clients/Index', [
-            'clients' => auth()->user()->clients,
+            'clients' => auth()->user()->clients()->with('projects.tasks')->get(),
         ]);
     }
 

@@ -17,7 +17,7 @@ class ProjectController extends Controller
     {
         return Inertia::render('Projects/Index', [
             'client' => $client,
-            'projects' => $client->projects,
+            'projects' => $client->projects()->with('tasks')->get(),
         ]);
     }
 

@@ -31,6 +31,15 @@ const deleteProject = (projectId: number) => {
     }
 };
 
+const calculateTotalSeconds = (project: any) => {
+    return project.tasks.reduce((total: number, task: any) => total + task.total_seconds, 0);
+};
+
+const calculateTotalEarnings = (project: any) => {
+    const totalSeconds = calculateTotalSeconds(project);
+    return (totalSeconds / 3600) * project.hourly_rate;
+};
+
 const form = useForm({});
 </script>
 
@@ -82,10 +91,10 @@ const form = useForm({});
                                         <div class="text-gray-900">{{ project.hourly_rate }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                        <div class="text-gray-900">{{ formatSeconds(project.total_seconds) }}</div>
+                                        <div class="text-gray-900">{{ formatSeconds(calculateTotalSeconds(project)) }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                        <div class="text-gray-900">€{{ project.total_earnings.toFixed(2) }}</div>
+                                        <div class="text-gray-900">€{{ calculateTotalEarnings(project).toFixed(2) }}</div>
                                     </td>
                                     <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
                                         <div class="text-gray-900">{{ project.paid_at }}</div>
