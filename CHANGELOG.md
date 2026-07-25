@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.57](https://github.com/melasistema/clients-melasistema/compare/v0.0.56...v0.0.57) (2026-07-25)
+
+
+### Features
+
+* **earnings:** fix rollup, add demo seeds and repair the Pest suite ([29b8088](https://github.com/melasistema/clients-melasistema/commit/29b8088f0fa48b9170b8e6cff69130bdf7bc050f))
+
 ### [0.0.56](https://github.com/melasistema/clients-melasistema/compare/v0.0.55...v0.0.56) (2025-08-19)
 
 
