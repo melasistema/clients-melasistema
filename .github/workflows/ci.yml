@@ -33,10 +33,20 @@ jobs:
         with:
           php-version: '8.4'
 
+      # Pin Node to 22 and install from the lockfile (npm ci), so the lint job
+      # runs the exact Prettier/ESLint versions the repo pins — matching local
+      # `nvm use 22` and the test job. Without this the runner's default Node and
+      # a fresh `npm install` can resolve newer tools that flag passing code.
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
       - name: Install Dependencies
         run: |
           composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-          npm install
+          npm ci
 
       # Check-only steps: fail the build on violations, never modify files.
       - name: Check PHP formatting (Pint)
