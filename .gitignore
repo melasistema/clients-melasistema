@@ -24,6 +24,7 @@ yarn-error.log
 /.zed
 /.github
 /.antigravitycli
+/references
 
 # ── macOS noise ───────────────────────────────────────────────
 .DS_Store
