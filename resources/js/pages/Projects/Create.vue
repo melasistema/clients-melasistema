@@ -1,14 +1,20 @@
 <script setup lang="ts">
+import Heading from '@/components/Heading.vue';
+import InputError from '@/components/InputError.vue';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { useForm } from '@inertiajs/vue3';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type Client } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 
-const props = defineProps<{ client: any }>();
+const props = defineProps<{ client: Client }>();
 
 const form = useForm({
     name: '',
     description: '',
-    hourly_rate: 0.00,
+    hourly_rate: 0,
 });
 
 const submit = () => {
@@ -16,61 +22,43 @@ const submit = () => {
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Clients',
-        href: '/clients',
-    },
-    {
-        title: 'Projects',
-        href: '/clients/' + props.client.id + '/projects',
-    },
-    {
-        title: 'Create',
-        href: '/clients/' + props.client.id + '/projects/create',
-    },
+    { title: 'Clients', href: '/clients' },
+    { title: 'Projects', href: '/clients/' + props.client.id + '/projects' },
+    { title: 'Create', href: '/clients/' + props.client.id + '/projects/create' },
 ];
 </script>
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Create Project for {{ client.company_name }}
-            </h2>
-        </template>
+        <Head title="Create project" />
 
-        <div class="p-4 sm:p-6 lg:p-8">
-            <div class="mx-auto max-w-xl">
-                <form @submit.prevent="submit">
-                    <div class="space-y-6">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700">Project Name</label>
-                            <div class="mt-1">
-                                <input v-model="form.name" type="text" name="name" id="name" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
-                            </div>
-                        </div>
+        <div class="px-4 py-6">
+            <Heading title="Create project" :description="`Add a new project for ${client.company_name}.`" />
 
-                        <div>
-                            <label for="description" class="block text-sm font-medium text-gray-700">Description</label>
-                            <div class="mt-1">
-                                <textarea v-model="form.description" name="description" id="description" rows="3" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"></textarea>
-                            </div>
-                        </div>
+            <form class="mt-6 max-w-xl space-y-6" @submit.prevent="submit">
+                <div class="grid gap-2">
+                    <Label for="name">Project name</Label>
+                    <Input id="name" v-model="form.name" type="text" />
+                    <InputError :message="form.errors.name" />
+                </div>
 
-                        <div>
-                            <label for="hourly_rate" class="block text-sm font-medium text-gray-700">Hourly Rate</label>
-                            <div class="mt-1">
-                                <input v-model="form.hourly_rate" type="number" step="0.01" name="hourly_rate" id="hourly_rate" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" />
-                            </div>
-                        </div>
-                    </div>
+                <div class="grid gap-2">
+                    <Label for="description">Description</Label>
+                    <Textarea id="description" v-model="form.description" rows="3" />
+                    <InputError :message="form.errors.description" />
+                </div>
 
-                    <div class="mt-6 flex items-center justify-end gap-x-6">
-                        <a :href="route('clients.projects.index', client.id)" class="text-sm font-semibold leading-6 text-gray-900">Cancel</a>
-                        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Save</button>
-                    </div>
-                </form>
-            </div>
+                <div class="grid gap-2">
+                    <Label for="hourly_rate">Hourly rate (€)</Label>
+                    <Input id="hourly_rate" v-model="form.hourly_rate" type="number" step="0.01" min="0" />
+                    <InputError :message="form.errors.hourly_rate" />
+                </div>
+
+                <div class="flex items-center justify-end gap-4">
+                    <Link :href="route('clients.projects.index', client.id)" :class="buttonVariants({ variant: 'ghost' })">Cancel</Link>
+                    <Button type="submit" :disabled="form.processing">Save</Button>
+                </div>
+            </form>
         </div>
     </AppLayout>
 </template>

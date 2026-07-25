@@ -60,6 +60,7 @@ export interface Project {
     hourly_rate: number;
     paid_at: string | null;
     total_earnings: number;
+    tasks?: Task[];
     created_at?: string;
     updated_at?: string;
 }
