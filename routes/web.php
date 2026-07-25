@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -15,17 +17,17 @@ Route::get('dashboard', function () {
 Route::resource('clients', ClientController::class)
     ->middleware(['auth', 'verified']);
 
-Route::resource('clients.projects', App\Http\Controllers\ProjectController::class)
+Route::resource('clients.projects', ProjectController::class)
     ->middleware(['auth', 'verified']);
 
-Route::resource('clients.projects.tasks', App\Http\Controllers\TaskController::class)
+Route::resource('clients.projects.tasks', TaskController::class)
     ->middleware(['auth', 'verified']);
 
-Route::post('clients/{client}/projects/{project}/tasks/{task}/start-timer', [App\Http\Controllers\TaskController::class, 'startTimer'])
+Route::post('clients/{client}/projects/{project}/tasks/{task}/start-timer', [TaskController::class, 'startTimer'])
     ->middleware(['auth', 'verified'])
     ->name('clients.projects.tasks.startTimer');
 
-Route::post('clients/{client}/projects/{project}/tasks/{task}/stop-timer', [App\Http\Controllers\TaskController::class, 'stopTimer'])
+Route::post('clients/{client}/projects/{project}/tasks/{task}/stop-timer', [TaskController::class, 'stopTimer'])
     ->middleware(['auth', 'verified'])
     ->name('clients.projects.tasks.stopTimer');
 
