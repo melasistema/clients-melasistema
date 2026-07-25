@@ -1,4 +1,4 @@
-# Freelance Time Tracking App
+# MelaFreelance Time Tracking App
 
 A freelance time-tracking application built with Laravel 12 and Vue.js, featuring client, project, and task management with hourly rates and payment tracking.
 

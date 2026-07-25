@@ -35,7 +35,7 @@ jobs:
         # Sets up Node.js for building frontend assets
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install NPM dependencies and build assets
         # Installs NPM dependencies and builds the production assets on the runner
