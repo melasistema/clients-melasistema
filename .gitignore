@@ -22,3 +22,13 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+/.github
+/.antigravitycli
+
+# ── macOS noise ───────────────────────────────────────────────
+.DS_Store
+
+# Agents
+GEMINI.md
+CLAUDE.md
+AGENTS.md
