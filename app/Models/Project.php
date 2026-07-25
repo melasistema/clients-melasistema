@@ -20,6 +20,12 @@ class Project extends Model
 
     protected $appends = ['total_earnings'];
 
+    /**
+     * Defensive guard against the same serialization cycle as Task: never serialize
+     * the parent client back down when a project is nested under it.
+     */
+    protected $hidden = ['client'];
+
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class);

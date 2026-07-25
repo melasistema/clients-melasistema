@@ -24,6 +24,14 @@ class Task extends Model
 
     protected $appends = ['this_task_total_entry'];
 
+    /**
+     * The `this_task_total_entry` accessor reads `$this->project->hourly_rate`,
+     * which lazy-loads the parent project onto this task. Hide it so serialization
+     * never walks back up the chain (task -> project -> tasks -> ...) into infinite
+     * recursion. The frontend reads the appended totals, not the nested parent.
+     */
+    protected $hidden = ['project'];
+
     public function project(): BelongsTo
     {
         return $this->belongsTo(Project::class);

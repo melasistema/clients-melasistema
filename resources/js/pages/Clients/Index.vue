@@ -1,90 +1,124 @@
 <script setup lang="ts">
+import Heading from '@/components/Heading.vue';
+import { Button, buttonVariants } from '@/components/ui/button';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { type BreadcrumbItem } from '@/types';
-import { useForm } from '@inertiajs/vue3';
+import { type BreadcrumbItem, type Client } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/vue3';
 
-defineProps<{ clients: any[] }>();
+defineProps<{ clients: Client[] }>();
 
-const breadcrumbs: BreadcrumbItem[] = [
-    {
-        title: 'Clients',
-        href: '/clients',
-    },
-];
+const breadcrumbs: BreadcrumbItem[] = [{ title: 'Clients', href: '/clients' }];
 
 const form = useForm({});
 
 const deleteClient = (clientId: number) => {
-    if (typeof window !== 'undefined' && window.confirm('Are you sure you want to delete this client?')) {
-        form.delete(route('clients.destroy', clientId));
-    }
+    form.delete(route('clients.destroy', clientId), { preserveScroll: true });
 };
+
+const formatEarnings = (value: number) =>
+    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
 </script>
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                Clients
-            </h2>
-        </template>
+        <Head title="Clients" />
 
-        <div class="p-4 sm:p-6 lg:p-8">
-            <div class="sm:flex sm:items-center">
-                <div class="sm:flex-auto">
-                    <h1 class="text-base font-semibold leading-6 text-gray-900">Clients</h1>
-                    <p class="mt-2 text-sm text-gray-700">A list of all the clients in your account including their name, title, email and role.</p>
-                </div>
-                <div class="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-                    <a :href="route('clients.create')" class="block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Add client</a>
-                </div>
+        <div class="px-4 py-6">
+            <div class="flex items-start justify-between gap-4">
+                <Heading title="Clients" description="Your clients, their contact details and total earnings." />
+                <Link :href="route('clients.create')" :class="buttonVariants({ size: 'sm' })">Add client</Link>
             </div>
-            <div class="mt-8 flow-root">
-                <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                    <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                        <table class="min-w-full divide-y divide-gray-300">
-                            <thead>
-                                <tr>
-                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Company</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Contact</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">VAT</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Total Earnings</th>
-                                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-0">
-                                        <span class="sr-only">Edit</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-gray-200 bg-white">
-                                <tr v-for="client in clients" :key="client.id">
-                                    <td class="whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0">
-                                        <div class="flex items-center">
-                                            <div class="ml-4">
-                                                <div class="font-medium text-gray-900">{{ client.company_name }}</div>
-                                                <div class="mt-1 text-gray-500">{{ client.address }}</div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                        <div class="text-gray-900">{{ client.contact_name }}</div>
-                                        <div class="mt-1 text-gray-500">{{ client.contact_email }}</div>
-                                    </td>
-                                    <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                        <div class="text-gray-900">{{ client.vat_number }}</div>
-                                        <div class="mt-1 text-gray-500">{{ client.unique_code }}</div>
-                                    </td>
-                                    <td class="whitespace-nowrap px-3 py-5 text-sm text-gray-500">
-                                        <div class="text-gray-900">€{{ Number(client.total_earnings).toFixed(2) }}</div>
-                                    </td>
-                                    <td class="relative whitespace-nowrap py-5 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                                        <a :href="route('clients.projects.index', client.id)" class="text-indigo-600 hover:text-indigo-900">View Projects<span class="sr-only">, {{ client.company_name }}</span></a>
-                                        <a :href="route('clients.edit', client.id)" class="ml-4 text-indigo-600 hover:text-indigo-900">Edit<span class="sr-only">, {{ client.company_name }}</span></a>
-                                        <button @click="deleteClient(client.id)" class="ml-4 text-red-600 hover:text-red-900">Delete<span class="sr-only">, {{ client.company_name }}</span></button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+
+            <div class="mt-6 rounded-xl border">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Company</TableHead>
+                            <TableHead>Contact</TableHead>
+                            <TableHead>VAT</TableHead>
+                            <TableHead>Total earnings</TableHead>
+                            <TableHead class="text-right">Actions</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        <TableRow v-for="client in clients" :key="client.id">
+                            <TableCell>
+                                <div class="font-medium text-foreground">{{ client.company_name }}</div>
+                                <div class="text-muted-foreground">{{ client.address }}</div>
+                            </TableCell>
+                            <TableCell>
+                                <div class="text-foreground">{{ client.contact_name }}</div>
+                                <div class="text-muted-foreground">{{ client.contact_email }}</div>
+                            </TableCell>
+                            <TableCell>
+                                <div class="text-foreground">{{ client.vat_number }}</div>
+                                <div class="text-muted-foreground">{{ client.unique_code }}</div>
+                            </TableCell>
+                            <TableCell class="font-medium text-foreground">
+                                {{ formatEarnings(client.total_earnings) }}
+                            </TableCell>
+                            <TableCell>
+                                <div class="flex items-center justify-end gap-2">
+                                    <Link
+                                        :href="route('clients.projects.index', client.id)"
+                                        :class="buttonVariants({ variant: 'ghost', size: 'sm' })"
+                                    >
+                                        Projects
+                                    </Link>
+                                    <Link
+                                        :href="route('clients.edit', client.id)"
+                                        :class="buttonVariants({ variant: 'outline', size: 'sm' })"
+                                    >
+                                        Edit
+                                    </Link>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger as-child>
+                                            <Button variant="destructive" size="sm">Delete</Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Delete {{ client.company_name }}?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This permanently removes the client and all of its projects and
+                                                    tasks. This action cannot be undone.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    class="bg-destructive text-white hover:bg-destructive/90"
+                                                    @click="deleteClient(client.id)"
+                                                >
+                                                    Delete
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                        <TableRow v-if="clients.length === 0">
+                            <TableCell colspan="5" class="py-10 text-center text-muted-foreground">
+                                No clients yet.
+                                <Link :href="route('clients.create')" class="text-foreground underline underline-offset-4">
+                                    Add your first client
+                                </Link>.
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                </Table>
             </div>
         </div>
     </AppLayout>
