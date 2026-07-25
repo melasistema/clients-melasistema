@@ -1,0 +1,178 @@
+# Single CI/CD pipeline: lint -> test -> deploy, all pinned to one commit.
+#
+# On every push/PR to development or master, lint and test run. The deploy job
+# only runs on a push to master AND only after lint + test succeed (needs:), so
+# the commit that ships is exactly the commit that passed. Assets are built once
+# in the test job and handed to deploy as an artifact — the tested build is the
+# deployed build.
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - development
+      - master
+  pull_request:
+    branches:
+      - development
+      - master
+
+# Least privilege: nothing here writes back to the repo.
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Install Dependencies
+        run: |
+          composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+          npm install
+
+      # Check-only steps: fail the build on violations, never modify files.
+      - name: Check PHP formatting (Pint)
+        run: vendor/bin/pint --test
+
+      - name: Check frontend formatting (Prettier)
+        run: npm run format:check
+
+      - name: Lint Frontend (ESLint)
+        run: npx eslint .
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          tools: composer:v2
+          coverage: xdebug
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Install Dependencies
+        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+      - name: Copy Environment File
+        run: cp .env.example .env
+
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      - name: Publish Ziggy Configuration
+        run: php artisan ziggy:generate
+
+      - name: Build Assets
+        run: npm run build
+
+      - name: Tests
+        run: ./vendor/bin/pest
+
+      - name: Upload build assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-assets
+          path: public/build
+          retention-days: 1
+          if-no-files-found: error
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    # Hard gate: only ship a green master commit.
+    needs: [lint, test]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    environment: production
+    # Serialize deploys and never cancel one mid-flight.
+    concurrency:
+      group: production-deploy
+      cancel-in-progress: false
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, redis
+
+      - name: Install Composer dependencies
+        # Production-only dependencies.
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Download build assets
+        # Reuse the exact assets built and tested in the `test` job — no rebuild.
+        uses: actions/download-artifact@v4
+        with:
+          name: build-assets
+          path: public/build
+
+      - name: Trim files not needed on the server
+        run: rm -rf .git .gitignore node_modules
+
+      - name: Deploy with SCP
+        # Copies the built codebase (source + vendor + public/build) to the server.
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "./*"
+          target: "/www/htdocs/w01c7e90/clients.melasistema.com"
+
+      - name: Run post-deployment commands on server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            # Navigate to the application directory using the real path
+            cd /www/htdocs/w01c7e90/clients.melasistema.com
+
+            # Place the site in maintenance mode to prevent issues during migrations
+            # A secret token can be used to bypass the maintenance page if needed
+            php artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
+
+            # Run database migrations
+            php artisan migrate --force
+
+            # Create the symbolic link
+            php artisan storage:link
+
+            # Optimize the application and clear caches
+            php artisan config:cache
+            php artisan route:cache
+            php artisan view:cache
+            php artisan event:cache
+
+            # Restart any queue workers (e.g., Laravel Horizon)
+            # sudo supervisorctl restart laravel-worker:*
+
+            # Bring the site back up
+            php artisan up
+
+            echo "Deployment completed successfully!"
