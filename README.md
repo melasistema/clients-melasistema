@@ -4,11 +4,11 @@ A freelance time-tracking application built with Laravel 12 and Vue.js, featurin
 
 ## Features
 
-- Client Management (CRUD)
-- Project Management (Planned)
-- Task Management (Planned)
-- Hourly Rate Tracking per Project (Planned)
-- Payment Tracking for Projects (Planned)
+- Client Management
+- Project Management
+- Task Management
+- Hourly Rate Tracking per Project
+- Payment Tracking for Projects
 
 ## Setup
 

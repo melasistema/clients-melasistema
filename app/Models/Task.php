@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Task extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'description',
         'total_seconds',
@@ -16,6 +18,7 @@ class Task extends Model
     ];
 
     protected $casts = [
+        'is_running' => 'boolean',
         'timer_started_at' => 'datetime',
     ];
 

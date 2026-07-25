@@ -2,18 +2,23 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'name',
         'description',
         'hourly_rate',
         'paid_at',
     ];
+
+    protected $appends = ['total_earnings'];
 
     public function client(): BelongsTo
     {
@@ -23,5 +28,10 @@ class Project extends Model
     public function tasks(): HasMany
     {
         return $this->hasMany(Task::class);
+    }
+
+    public function getTotalEarningsAttribute(): float
+    {
+        return ($this->tasks->sum('total_seconds') / 3600) * $this->hourly_rate;
     }
 }
