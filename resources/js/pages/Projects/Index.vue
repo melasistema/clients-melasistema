@@ -38,11 +38,9 @@ const formatSeconds = (totalSeconds: number) => {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 };
 
-const totalSecondsFor = (project: Project) =>
-    (project.tasks ?? []).reduce((total, task) => total + task.total_seconds, 0);
+const totalSecondsFor = (project: Project) => (project.tasks ?? []).reduce((total, task) => total + task.total_seconds, 0);
 
-const formatEarnings = (value: number) =>
-    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
+const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
 </script>
 
 <template>
@@ -99,8 +97,7 @@ const formatEarnings = (value: number) =>
                                             <AlertDialogHeader>
                                                 <AlertDialogTitle>Delete {{ project.name }}?</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    This permanently removes the project and all of its tasks. This
-                                                    action cannot be undone.
+                                                    This permanently removes the project and all of its tasks. This action cannot be undone.
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
@@ -120,12 +117,9 @@ const formatEarnings = (value: number) =>
                         <TableRow v-if="projects.length === 0">
                             <TableCell colspan="6" class="py-10 text-center text-muted-foreground">
                                 No projects yet.
-                                <Link
-                                    :href="route('clients.projects.create', client.id)"
-                                    class="text-foreground underline underline-offset-4"
-                                >
-                                    Add the first project
-                                </Link>.
+                                <Link :href="route('clients.projects.create', client.id)" class="text-foreground underline underline-offset-4">
+                                    Add the first project </Link
+                                >.
                             </TableCell>
                         </TableRow>
                     </TableBody>

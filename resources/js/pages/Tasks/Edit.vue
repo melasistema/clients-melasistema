@@ -75,10 +75,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
 
                 <div class="flex items-center justify-end gap-4">
-                    <Link
-                        :href="route('clients.projects.tasks.index', [client.id, project.id])"
-                        :class="buttonVariants({ variant: 'ghost' })"
-                    >
+                    <Link :href="route('clients.projects.tasks.index', [client.id, project.id])" :class="buttonVariants({ variant: 'ghost' })">
                         Cancel
                     </Link>
                     <Button type="submit" :disabled="form.processing">Save</Button>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
-import { Button, buttonVariants } from '@/components/ui/button';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -12,6 +11,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Button, buttonVariants } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client } from '@/types';
@@ -27,8 +27,7 @@ const deleteClient = (clientId: number) => {
     form.delete(route('clients.destroy', clientId), { preserveScroll: true });
 };
 
-const formatEarnings = (value: number) =>
-    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
+const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
 </script>
 
 <template>
@@ -77,10 +76,7 @@ const formatEarnings = (value: number) =>
                                     >
                                         Projects
                                     </Link>
-                                    <Link
-                                        :href="route('clients.edit', client.id)"
-                                        :class="buttonVariants({ variant: 'outline', size: 'sm' })"
-                                    >
+                                    <Link :href="route('clients.edit', client.id)" :class="buttonVariants({ variant: 'outline', size: 'sm' })">
                                         Edit
                                     </Link>
                                     <AlertDialog>
@@ -91,8 +87,8 @@ const formatEarnings = (value: number) =>
                                             <AlertDialogHeader>
                                                 <AlertDialogTitle>Delete {{ client.company_name }}?</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    This permanently removes the client and all of its projects and
-                                                    tasks. This action cannot be undone.
+                                                    This permanently removes the client and all of its projects and tasks. This action cannot be
+                                                    undone.
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
@@ -113,8 +109,8 @@ const formatEarnings = (value: number) =>
                             <TableCell colspan="5" class="py-10 text-center text-muted-foreground">
                                 No clients yet.
                                 <Link :href="route('clients.create')" class="text-foreground underline underline-offset-4">
-                                    Add your first client
-                                </Link>.
+                                    Add your first client </Link
+                                >.
                             </TableCell>
                         </TableRow>
                     </TableBody>

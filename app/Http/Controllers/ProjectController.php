@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\Project;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Project;
 use Inertia\Response;
 
 class ProjectController extends Controller

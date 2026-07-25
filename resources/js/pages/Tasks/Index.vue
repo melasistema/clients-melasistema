@@ -76,8 +76,7 @@ const formatTime = (timestamp: string) => {
     return formatSeconds(Math.max(diffInSeconds, 0));
 };
 
-const formatEarnings = (value: number) =>
-    new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
+const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
 </script>
 
 <template>
@@ -87,10 +86,7 @@ const formatEarnings = (value: number) =>
         <div class="px-4 py-6">
             <div class="flex items-start justify-between gap-4">
                 <Heading title="Tasks" :description="`Tasks for ${project.name}, time tracked and earnings.`" />
-                <Link
-                    :href="route('clients.projects.tasks.create', [client.id, project.id])"
-                    :class="buttonVariants({ size: 'sm' })"
-                >
+                <Link :href="route('clients.projects.tasks.create', [client.id, project.id])" :class="buttonVariants({ size: 'sm' })">
                     Add task
                 </Link>
             </div>
@@ -111,10 +107,7 @@ const formatEarnings = (value: number) =>
                             <TableCell class="font-medium text-foreground">{{ task.description }}</TableCell>
                             <TableCell class="text-foreground">{{ formatSeconds(task.total_seconds) }}</TableCell>
                             <TableCell>
-                                <span
-                                    v-if="task.is_running && task.timer_started_at"
-                                    class="font-medium text-green-600 dark:text-green-500"
-                                >
+                                <span v-if="task.is_running && task.timer_started_at" class="font-medium text-green-600 dark:text-green-500">
                                     Running ({{ formatTime(task.timer_started_at) }})
                                 </span>
                                 <span v-else class="text-muted-foreground">Stopped</span>
@@ -128,9 +121,7 @@ const formatEarnings = (value: number) =>
                                     >
                                         Edit
                                     </Link>
-                                    <Button v-if="!task.is_running" variant="secondary" size="sm" @click="startTimer(task.id)">
-                                        Start
-                                    </Button>
+                                    <Button v-if="!task.is_running" variant="secondary" size="sm" @click="startTimer(task.id)"> Start </Button>
                                     <Button v-else variant="default" size="sm" @click="stopTimer(task.id)">Stop</Button>
                                     <AlertDialog>
                                         <AlertDialogTrigger as-child>
@@ -140,8 +131,8 @@ const formatEarnings = (value: number) =>
                                             <AlertDialogHeader>
                                                 <AlertDialogTitle>Delete this task?</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    This permanently removes “{{ task.description }}” and its tracked
-                                                    time. This action cannot be undone.
+                                                    This permanently removes “{{ task.description }}” and its tracked time. This action cannot be
+                                                    undone.
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
@@ -165,8 +156,8 @@ const formatEarnings = (value: number) =>
                                     :href="route('clients.projects.tasks.create', [client.id, project.id])"
                                     class="text-foreground underline underline-offset-4"
                                 >
-                                    Add the first task
-                                </Link>.
+                                    Add the first task </Link
+                                >.
                             </TableCell>
                         </TableRow>
                     </TableBody>
