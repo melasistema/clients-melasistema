@@ -6,13 +6,16 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AuthBase from '@/layouts/AuthLayout.vue';
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, usePage } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
+import { computed } from 'vue';
 
 defineProps<{
     status?: string;
     canResetPassword: boolean;
 }>();
+
+const registrationEnabled = computed(() => usePage().props.registrationEnabled);
 
 const form = useForm({
     email: '',
@@ -84,10 +87,10 @@ const submit = () => {
                 </Button>
             </div>
 
-            <!--<div class="text-center text-sm text-muted-foreground">
+            <div v-if="registrationEnabled" class="text-center text-sm text-muted-foreground">
                 Don't have an account?
                 <TextLink :href="route('register')" :tabindex="5">Sign up</TextLink>
-            </div>-->
+            </div>
         </form>
     </AuthBase>
 </template>

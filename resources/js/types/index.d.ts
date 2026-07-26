@@ -19,6 +19,7 @@ export interface NavItem {
 
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     name: string;
+    registrationEnabled: boolean;
     quote: { message: string; author: string };
     auth: Auth;
     ziggy: Config & { location: string };

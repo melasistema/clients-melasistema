@@ -43,6 +43,33 @@ A freelance time-tracking application built with Laravel 12 and Vue.js, featurin
     ./vendor/bin/sail npm run dev
     ```
 
+## Accounts & registration
+
+MelaFreelance ships as a **single-user** app: public sign-up is closed, and you
+create the one owner account yourself. On a fresh install, provision it from the
+CLI:
+
+```bash
+php artisan app:create-user
+# or headless / scripted:
+php artisan app:create-user --name="Jane Doe" --email=jane@example.com --password='a-strong-password'
+```
+
+The account is created already email-verified, so you can log in right away
+without configuring a mail server.
+
+### Running it for a team (multi-user)
+
+If you want to self-host for several people and let them sign up, set the
+following in your `.env` and re-cache config:
+
+```dotenv
+REGISTRATION_ENABLED=true
+```
+
+That opens the `/register` routes and shows a "Sign up" link on the login page.
+Leave it unset (or `false`) to keep the app single-user.
+
 ## Usage
 
 - Access the application in your browser at `http://localhost` (or your configured `APP_URL` in `.env`).
