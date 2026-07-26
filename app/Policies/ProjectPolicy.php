@@ -36,4 +36,24 @@ class ProjectPolicy
     {
         return $project->client->user_id === $user->id;
     }
+
+    /**
+     * Trash recovery. Walks the parent with `withTrashed()` so the ownership check
+     * still resolves even if an ancestor is itself soft-deleted; `forceDelete`
+     * purges the project (its tasks cascade at the DB level).
+     */
+    public function restore(User $user, Project $project): bool
+    {
+        return $this->ownedBy($user, $project);
+    }
+
+    public function forceDelete(User $user, Project $project): bool
+    {
+        return $this->ownedBy($user, $project);
+    }
+
+    private function ownedBy(User $user, Project $project): bool
+    {
+        return $project->client()->withTrashed()->value('user_id') === $user->id;
+    }
 }

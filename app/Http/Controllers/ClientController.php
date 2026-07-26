@@ -74,4 +74,29 @@ class ClientController extends Controller
 
         return redirect()->route('clients.index');
     }
+
+    /**
+     * Restore a trashed client (route model bound with ->withTrashed()).
+     */
+    public function restore(Client $client): RedirectResponse
+    {
+        $this->authorize('restore', $client);
+
+        $client->restore();
+
+        return redirect()->route('trash.index');
+    }
+
+    /**
+     * Permanently delete a trashed client; the DB cascade purges its projects
+     * and tasks in the same operation.
+     */
+    public function forceDelete(Client $client): RedirectResponse
+    {
+        $this->authorize('forceDelete', $client);
+
+        $client->forceDelete();
+
+        return redirect()->route('trash.index');
+    }
 }

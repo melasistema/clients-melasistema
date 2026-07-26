@@ -36,4 +36,25 @@ class TaskPolicy
     {
         return $task->project->client->user_id === $user->id;
     }
+
+    /**
+     * Trash recovery. Walks the chain with `withTrashed()` so ownership resolves
+     * even when an ancestor is soft-deleted; `forceDelete` purges the task row.
+     */
+    public function restore(User $user, Task $task): bool
+    {
+        return $this->ownedBy($user, $task);
+    }
+
+    public function forceDelete(User $user, Task $task): bool
+    {
+        return $this->ownedBy($user, $task);
+    }
+
+    private function ownedBy(User $user, Task $task): bool
+    {
+        $userId = $task->project()->withTrashed()->first()?->client()->withTrashed()->value('user_id');
+
+        return $userId === $user->id;
+    }
 }

@@ -81,4 +81,28 @@ class ProjectController extends Controller
 
         return redirect()->route('clients.projects.index', $client->id);
     }
+
+    /**
+     * Restore a trashed project (flat route, bound with ->withTrashed()).
+     */
+    public function restore(Project $project): RedirectResponse
+    {
+        $this->authorize('restore', $project);
+
+        $project->restore();
+
+        return redirect()->route('trash.index');
+    }
+
+    /**
+     * Permanently delete a trashed project; its tasks cascade at the DB level.
+     */
+    public function forceDelete(Project $project): RedirectResponse
+    {
+        $this->authorize('forceDelete', $project);
+
+        $project->forceDelete();
+
+        return redirect()->route('trash.index');
+    }
 }

@@ -30,4 +30,18 @@ class ClientPolicy
     {
         return $client->user_id === $user->id;
     }
+
+    /**
+     * Trash recovery. `restore` un-trashes; `forceDelete` purges for real (the DB
+     * cascade then removes the client's projects and tasks). Same ownership gate.
+     */
+    public function restore(User $user, Client $client): bool
+    {
+        return $client->user_id === $user->id;
+    }
+
+    public function forceDelete(User $user, Client $client): bool
+    {
+        return $client->user_id === $user->id;
+    }
 }

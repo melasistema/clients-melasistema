@@ -86,6 +86,30 @@ class TaskController extends Controller
         return redirect()->route('clients.projects.tasks.index', [$client->id, $project->id]);
     }
 
+    /**
+     * Restore a trashed task (flat route, bound with ->withTrashed()).
+     */
+    public function restore(Task $task): RedirectResponse
+    {
+        $this->authorize('restore', $task);
+
+        $task->restore();
+
+        return redirect()->route('trash.index');
+    }
+
+    /**
+     * Permanently delete a trashed task.
+     */
+    public function forceDelete(Task $task): RedirectResponse
+    {
+        $this->authorize('forceDelete', $task);
+
+        $task->forceDelete();
+
+        return redirect()->route('trash.index');
+    }
+
     public function startTimer(Client $client, Project $project, Task $task): RedirectResponse
     {
         $this->authorize('update', $task);

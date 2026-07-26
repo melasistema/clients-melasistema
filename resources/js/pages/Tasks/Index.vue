@@ -131,8 +131,8 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                                             <AlertDialogHeader>
                                                 <AlertDialogTitle>Delete this task?</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    This permanently removes “{{ task.description }}” and its tracked time. This action cannot be
-                                                    undone.
+                                                    This moves “{{ task.description }}” and its tracked time to the Trash. You can restore it from
+                                                    there, or delete it permanently later.
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>

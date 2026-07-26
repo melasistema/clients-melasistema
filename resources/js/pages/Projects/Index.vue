@@ -97,7 +97,8 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                                             <AlertDialogHeader>
                                                 <AlertDialogTitle>Delete {{ project.name }}?</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    This permanently removes the project and all of its tasks. This action cannot be undone.
+                                                    This moves the project, with all of its tasks, to the Trash. You can restore it from there, or
+                                                    delete it permanently later.
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
