@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.60](https://github.com/melasistema/clients-melasistema/compare/v0.0.59...v0.0.60) (2026-07-26)
+
+
+### Features
+
+* **data:** soft-delete the domain hierarchy and scope client email per user ([3c1bdcd](https://github.com/melasistema/clients-melasistema/commit/3c1bdcde8720b02fcb551ae595b4c8825db93d08))
+* **security:** enforce per-user ownership across clients, projects, tasks ([8493aea](https://github.com/melasistema/clients-melasistema/commit/8493aeab932e83da1999b51c0fba819c44b81c62))
+* **trash:** add trash page with restore and permanent delete ([2ea6802](https://github.com/melasistema/clients-melasistema/commit/2ea6802e31c9d6bef3e024217a4994a05104db5d))
+
+
+### Bug Fixes
+
+* **earnings:** compute money in integer cents to avoid float drift ([6d7b908](https://github.com/melasistema/clients-melasistema/commit/6d7b908117da19adfeb269da790161b4b1615d2b))
+
 ### [0.0.59](https://github.com/melasistema/clients-melasistema/compare/v0.0.58...v0.0.59) (2026-07-25)
 
 ### [0.0.58](https://github.com/melasistema/clients-melasistema/compare/v0.0.57...v0.0.58) (2026-07-25)
