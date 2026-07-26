@@ -56,6 +56,11 @@ const modeBadge = (project: Project) => {
     }
 };
 
+// Nudge predicate: all of a project's tasks are done but the project isn't marked
+// complete yet. Tasks ride along in the index payload (eager-loaded).
+const readyToComplete = (project: Project) =>
+    !project.is_completed && (project.tasks?.length ?? 0) > 0 && (project.tasks ?? []).every((task) => task.is_completed);
+
 const rateLabel = (project: Project) => {
     if (project.billing_mode === 'fixed') {
         return `${formatEarnings(project.agreed_fee ?? 0)} fee`;
@@ -146,6 +151,12 @@ const formatEarnings = (value: number | string) => new Intl.NumberFormat('de-DE'
                                         class="inline-flex items-center rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300"
                                     >
                                         Partial
+                                    </span>
+                                    <span
+                                        v-if="readyToComplete(project)"
+                                        class="inline-flex items-center rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300"
+                                    >
+                                        Ready to complete
                                     </span>
                                 </div>
                             </TableCell>

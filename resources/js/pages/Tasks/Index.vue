@@ -34,6 +34,14 @@ const showCompleted = ref(false);
 const completedCount = computed(() => props.tasks.filter((task) => task.is_completed).length);
 const visibleTasks = computed(() => (showCompleted.value ? props.tasks : props.tasks.filter((task) => !task.is_completed)));
 
+// Gentle nudge: once every task is done and the project isn't yet marked
+// complete, suggest completing it — but never force it (no auto-cascade).
+const showCompletionNudge = computed(() => props.tasks.length > 0 && props.tasks.every((task) => task.is_completed) && !props.project.is_completed);
+
+const completeProject = () => {
+    form.post(route('clients.projects.complete', [props.client.id, props.project.id]), { preserveScroll: true });
+};
+
 const currentTime = ref(Date.now());
 let timerInterval: ReturnType<typeof setInterval> | undefined;
 
@@ -113,6 +121,14 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                 <Checkbox id="show-completed" v-model="showCompleted" />
                 Show completed ({{ completedCount }})
             </label>
+
+            <div
+                v-if="showCompletionNudge"
+                class="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm dark:border-amber-900 dark:bg-amber-950/50"
+            >
+                <span class="text-amber-800 dark:text-amber-200">All tasks are complete — mark this project as done?</span>
+                <Button size="sm" @click="completeProject">Mark project complete</Button>
+            </div>
 
             <div class="mt-6 rounded-xl border">
                 <Table>
