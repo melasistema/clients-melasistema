@@ -160,29 +160,49 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
+            # Fail loudly: abort on the first error instead of running to the final
+            # echo and reporting a green deploy while migrations silently failed.
+            set -euo pipefail
+
             # Navigate to the application directory using the real path
             cd /www/htdocs/w01c7e90/clients.melasistema.com
 
-            # Place the site in maintenance mode to prevent issues during migrations
-            # A secret token can be used to bypass the maintenance page if needed
-            php artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
+            # The vendor/ built in CI needs PHP >= 8.4.1 (Symfony 7.4 components),
+            # and production's web SAPI is 8.4 — but this host's DEFAULT CLI `php`
+            # is 8.3, which the vendor platform check rejects, so every `php artisan`
+            # below would die. Resolve an explicit 8.4 CLI binary; if none is found,
+            # exit non-zero (the deploy fails visibly) rather than masking it.
+            PHP="$(command -v php8.4 || command -v php-8.4 || command -v php84 || true)"
+            if [ -z "$PHP" ]; then
+              echo "ERROR: no PHP 8.4 CLI binary found (tried php8.4, php-8.4, php84)." >&2
+              echo "Set PHP to the correct 8.4 binary/path for this host and redeploy." >&2
+              exit 1
+            fi
+            echo "Using PHP CLI: $PHP"
+            "$PHP" -v
+
+            # Place the site in maintenance mode to prevent issues during migrations.
+            # A secret token can be used to bypass the maintenance page if needed.
+            # With set -e, a failed migration leaves the site in maintenance (safe)
+            # rather than bringing a broken build back up.
+            "$PHP" artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
 
             # Run database migrations
-            php artisan migrate --force
+            "$PHP" artisan migrate --force
 
             # Create the symbolic link
-            php artisan storage:link
+            "$PHP" artisan storage:link
 
             # Optimize the application and clear caches
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            php artisan event:cache
+            "$PHP" artisan config:cache
+            "$PHP" artisan route:cache
+            "$PHP" artisan view:cache
+            "$PHP" artisan event:cache
 
             # Restart any queue workers (e.g., Laravel Horizon)
             # sudo supervisorctl restart laravel-worker:*
 
             # Bring the site back up
-            php artisan up
+            "$PHP" artisan up
 
             echo "Deployment completed successfully!"
