@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreClientRequest;
+use App\Http\Requests\UpdateClientRequest;
 use App\Models\Client;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,44 +26,19 @@ class ClientController extends Controller
      */
     public function create(): Response
     {
+        $this->authorize('create', Client::class);
+
         return Inertia::render('Clients/Create');
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreClientRequest $request): RedirectResponse
     {
-        $request->validate([
-            'company_name' => 'required|string|max:255',
-            'contact_name' => 'required|string|max:255',
-            'contact_email' => 'required|string|email|max:255|unique:clients',
-            'contact_phone' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'vat_number' => 'nullable|string|max:255',
-            'unique_code' => 'nullable|string|max:255',
-        ]);
-
-        Client::create([
-            'company_name' => $request->company_name,
-            'contact_name' => $request->contact_name,
-            'contact_email' => $request->contact_email,
-            'contact_phone' => $request->contact_phone,
-            'address' => $request->address,
-            'vat_number' => $request->vat_number,
-            'unique_code' => $request->unique_code,
-            'user_id' => auth()->id(),
-        ]);
+        auth()->user()->clients()->create($request->validated());
 
         return redirect()->route('clients.index');
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -69,6 +46,8 @@ class ClientController extends Controller
      */
     public function edit(Client $client): Response
     {
+        $this->authorize('update', $client);
+
         return Inertia::render('Clients/Edit', [
             'client' => $client,
         ]);
@@ -77,27 +56,9 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Client $client)
+    public function update(UpdateClientRequest $request, Client $client): RedirectResponse
     {
-        $request->validate([
-            'company_name' => 'required|string|max:255',
-            'contact_name' => 'required|string|max:255',
-            'contact_email' => 'required|string|email|max:255|unique:clients,contact_email,'.$client->id,
-            'contact_phone' => 'nullable|string|max:255',
-            'address' => 'nullable|string',
-            'vat_number' => 'nullable|string|max:255',
-            'unique_code' => 'nullable|string|max:255',
-        ]);
-
-        $client->update([
-            'company_name' => $request->company_name,
-            'contact_name' => $request->contact_name,
-            'contact_email' => $request->contact_email,
-            'contact_phone' => $request->contact_phone,
-            'address' => $request->address,
-            'vat_number' => $request->vat_number,
-            'unique_code' => $request->unique_code,
-        ]);
+        $client->update($request->validated());
 
         return redirect()->route('clients.index');
     }
@@ -105,8 +66,10 @@ class ClientController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Client $client)
+    public function destroy(Client $client): RedirectResponse
     {
+        $this->authorize('delete', $client);
+
         $client->delete();
 
         return redirect()->route('clients.index');

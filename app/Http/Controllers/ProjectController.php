@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
 use App\Models\Client;
 use App\Models\Project;
-use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,6 +17,8 @@ class ProjectController extends Controller
      */
     public function index(Client $client): Response
     {
+        $this->authorize('view', $client);
+
         return Inertia::render('Projects/Index', [
             'client' => $client,
             'projects' => $client->projects()->with('tasks')->get(),
@@ -26,6 +30,8 @@ class ProjectController extends Controller
      */
     public function create(Client $client): Response
     {
+        $this->authorize('create', [Project::class, $client]);
+
         return Inertia::render('Projects/Create', [
             'client' => $client,
         ]);
@@ -34,29 +40,11 @@ class ProjectController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request, Client $client)
+    public function store(StoreProjectRequest $request, Client $client): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'hourly_rate' => 'required|numeric|min:0',
-        ]);
-
-        $client->projects()->create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'hourly_rate' => $request->hourly_rate,
-        ]);
+        $client->projects()->create($request->validated());
 
         return redirect()->route('clients.projects.index', $client->id);
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -64,6 +52,8 @@ class ProjectController extends Controller
      */
     public function edit(Client $client, Project $project): Response
     {
+        $this->authorize('update', $project);
+
         return Inertia::render('Projects/Edit', [
             'client' => $client,
             'project' => $project,
@@ -73,21 +63,9 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Client $client, Project $project)
+    public function update(UpdateProjectRequest $request, Client $client, Project $project): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'hourly_rate' => 'required|numeric|min:0',
-            'paid_at' => 'nullable|date',
-        ]);
-
-        $project->update([
-            'name' => $request->name,
-            'description' => $request->description,
-            'hourly_rate' => $request->hourly_rate,
-            'paid_at' => $request->paid_at,
-        ]);
+        $project->update($request->validated());
 
         return redirect()->route('clients.projects.index', $client->id);
     }
@@ -95,8 +73,10 @@ class ProjectController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Client $client, Project $project)
+    public function destroy(Client $client, Project $project): RedirectResponse
     {
+        $this->authorize('delete', $project);
+
         $project->delete();
 
         return redirect()->route('clients.projects.index', $client->id);

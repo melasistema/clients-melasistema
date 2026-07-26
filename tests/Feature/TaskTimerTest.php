@@ -3,7 +3,6 @@
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
-use App\Models\User;
 
 function timerTask(array $attributes = []): Task
 {
@@ -16,7 +15,7 @@ function timerTask(array $attributes = []): Task
 test('starting a timer marks the task running and records the start time', function () {
     $task = timerTask(['is_running' => false, 'timer_started_at' => null]);
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs($task->project->client->user)
         ->post(route('clients.projects.tasks.startTimer', [
             $task->project->client, $task->project, $task,
         ]))
@@ -34,7 +33,7 @@ test('stopping a timer accumulates elapsed seconds and clears the running state'
         'total_seconds' => 100,
     ]);
 
-    $this->actingAs(User::factory()->create())
+    $this->actingAs($task->project->client->user)
         ->post(route('clients.projects.tasks.stopTimer', [
             $task->project->client, $task->project, $task,
         ]))

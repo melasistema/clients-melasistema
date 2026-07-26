@@ -14,22 +14,24 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::resource('clients', ClientController::class)
-    ->middleware(['auth', 'verified']);
+// The domain hierarchy (Client -> Project -> Task). `scoped()` enforces the URL
+// nesting at the routing layer: a project must belong to the client in the URL,
+// a task to that project — mismatched IDs 404 before a controller runs.
+// `show` is intentionally omitted; there are no detail pages (lists link to
+// projects/tasks/edit directly). Ownership is enforced by the model policies.
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::resource('clients', ClientController::class)->except('show');
+    Route::resource('clients.projects', ProjectController::class)->scoped()->except('show');
+    Route::resource('clients.projects.tasks', TaskController::class)->scoped()->except('show');
 
-Route::resource('clients.projects', ProjectController::class)
-    ->middleware(['auth', 'verified']);
+    Route::post('clients/{client}/projects/{project}/tasks/{task}/start-timer', [TaskController::class, 'startTimer'])
+        ->scopeBindings()
+        ->name('clients.projects.tasks.startTimer');
 
-Route::resource('clients.projects.tasks', TaskController::class)
-    ->middleware(['auth', 'verified']);
-
-Route::post('clients/{client}/projects/{project}/tasks/{task}/start-timer', [TaskController::class, 'startTimer'])
-    ->middleware(['auth', 'verified'])
-    ->name('clients.projects.tasks.startTimer');
-
-Route::post('clients/{client}/projects/{project}/tasks/{task}/stop-timer', [TaskController::class, 'stopTimer'])
-    ->middleware(['auth', 'verified'])
-    ->name('clients.projects.tasks.stopTimer');
+    Route::post('clients/{client}/projects/{project}/tasks/{task}/stop-timer', [TaskController::class, 'stopTimer'])
+        ->scopeBindings()
+        ->name('clients.projects.tasks.stopTimer');
+});
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
