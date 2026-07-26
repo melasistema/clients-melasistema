@@ -21,6 +21,15 @@ class Project extends Model
     protected $appends = ['total_earnings'];
 
     /**
+     * Cast the money column so it is a canonical 2-decimal value in every
+     * environment. Without this, MySQL (production) returns `hourly_rate` as a
+     * string while SQLite (tests) returns a float — a silent dev/prod divergence.
+     */
+    protected $casts = [
+        'hourly_rate' => 'decimal:2',
+    ];
+
+    /**
      * Defensive guard against the same serialization cycle as Task: never serialize
      * the parent client back down when a project is nested under it.
      */
@@ -43,8 +52,22 @@ class Project extends Model
         return $this->hasMany(Task::class)->chaperone();
     }
 
+    /**
+     * This project's earnings in whole cents. Money is accumulated as integers
+     * so the rollup (task -> project -> client) never drifts on floating point;
+     * the euro accessors below divide by 100 only at the boundary. Rounding
+     * happens once, on the summed seconds, so a project total is derived directly
+     * from its worked time rather than from re-rounded per-task figures.
+     */
+    public function totalEarningsInCents(): int
+    {
+        $rateCents = (int) round(((float) $this->hourly_rate) * 100);
+
+        return (int) round($this->tasks->sum('total_seconds') * $rateCents / 3600);
+    }
+
     public function getTotalEarningsAttribute(): float
     {
-        return ($this->tasks->sum('total_seconds') / 3600) * $this->hourly_rate;
+        return $this->totalEarningsInCents() / 100;
     }
 }

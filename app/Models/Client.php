@@ -36,6 +36,8 @@ class Client extends Model
 
     public function getTotalEarningsAttribute(): float
     {
-        return $this->projects->sum('total_earnings');
+        // Sum in integer cents (see Project::totalEarningsInCents) so the
+        // client-level rollup can't accumulate floating-point error.
+        return $this->projects->sum(fn (Project $project): int => $project->totalEarningsInCents()) / 100;
     }
 }

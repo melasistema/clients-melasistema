@@ -57,7 +57,9 @@ export interface Project {
     client_id: number;
     name: string;
     description: string | null;
-    hourly_rate: number;
+    // Serialized from a decimal:2 cast, so it arrives as a string ("85.00").
+    // The number <input> and Intl formatter both coerce it fine.
+    hourly_rate: string;
     paid_at: string | null;
     total_earnings: number;
     tasks?: Task[];

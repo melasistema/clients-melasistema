@@ -37,8 +37,20 @@ class Task extends Model
         return $this->belongsTo(Project::class);
     }
 
+    /**
+     * This task's earning in whole cents — integer money math (see
+     * Project::totalEarningsInCents) so serialized totals never carry float
+     * artifacts. The euro accessor divides by 100 at the boundary.
+     */
+    public function thisTaskTotalEntryInCents(): int
+    {
+        $rateCents = (int) round(((float) $this->project->hourly_rate) * 100);
+
+        return (int) round($this->total_seconds * $rateCents / 3600);
+    }
+
     public function getThisTaskTotalEntryAttribute(): float
     {
-        return ($this->total_seconds / 3600) * $this->project->hourly_rate;
+        return $this->thisTaskTotalEntryInCents() / 100;
     }
 }
