@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.63](https://github.com/melasistema/clients-melasistema/compare/v0.0.62...v0.0.63) (2026-07-26)
+
+
+### Features
+
+* **auth:** single-user by default with CLI provisioning and opt-in registration ([04e9454](https://github.com/melasistema/clients-melasistema/commit/04e94549a2bf817dd1b6537d4ce459a2b72d0992))
+
 ### [0.0.62](https://github.com/melasistema/clients-melasistema/compare/v0.0.61...v0.0.62) (2026-07-26)
 
 
