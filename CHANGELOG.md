@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.62](https://github.com/melasistema/clients-melasistema/compare/v0.0.61...v0.0.62) (2026-07-26)
+
+
+### Bug Fixes
+
+* fix deployment pipeline ([3904250](https://github.com/melasistema/clients-melasistema/commit/3904250aebfcb3b9794d57c5e66b88eb279651d6))
+
 ### [0.0.61](https://github.com/melasistema/clients-melasistema/compare/v0.0.60...v0.0.61) (2026-07-26)
 
 ### [0.0.60](https://github.com/melasistema/clients-melasistema/compare/v0.0.59...v0.0.60) (2026-07-26)
