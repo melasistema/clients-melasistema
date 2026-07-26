@@ -47,9 +47,10 @@ class DemoDataSeeder extends Seeder
 
             foreach ($projects as $projectData) {
                 $tasks = $projectData['tasks'] ?? [];
-                unset($projectData['tasks']);
+                $payments = $projectData['payments'] ?? [];
+                unset($projectData['tasks'], $projectData['payments']);
 
-                $projectData['paid_at'] = $this->resolveDate($projectData['paid_at'] ?? null);
+                $projectData['completed_at'] = $this->resolveDate($projectData['completed_at'] ?? null);
 
                 $project = $client->projects()->updateOrCreate(
                     ['name' => $projectData['name']],
@@ -60,6 +61,17 @@ class DemoDataSeeder extends Seeder
                     $project->tasks()->updateOrCreate(
                         ['description' => $taskData['description']],
                         $taskData,
+                    );
+                }
+
+                // Payments are matched on (project, note) so re-seeding is idempotent —
+                // every demo payment carries a distinct note within its project.
+                foreach ($payments as $paymentData) {
+                    $paymentData['paid_at'] = $this->resolveDate($paymentData['paid_at']);
+
+                    $project->payments()->updateOrCreate(
+                        ['note' => $paymentData['note']],
+                        $paymentData,
                     );
                 }
             }

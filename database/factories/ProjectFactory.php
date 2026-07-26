@@ -18,15 +18,32 @@ class ProjectFactory extends Factory
             'name' => fake()->catchPhrase(),
             'description' => fake()->sentence(),
             'hourly_rate' => fake()->randomFloat(2, 40, 120),
-            'paid_at' => null,
+            'agreed_fee' => null,
+            'completed_at' => null,
         ];
     }
 
     /**
-     * Mark the project as already paid.
+     * A fixed-price project: an agreed fee makes it bill the fee, not the hours.
      */
-    public function paid(): static
+    public function fixed(float $fee = 5000): static
     {
-        return $this->state(fn () => ['paid_at' => now()]);
+        return $this->state(fn () => ['agreed_fee' => $fee]);
+    }
+
+    /**
+     * Non-billable (personal) work: no fee, zero rate. Still time-tracked.
+     */
+    public function nonBillable(): static
+    {
+        return $this->state(fn () => ['hourly_rate' => 0, 'agreed_fee' => null]);
+    }
+
+    /**
+     * Mark the project completed (work delivered).
+     */
+    public function completed(): static
+    {
+        return $this->state(fn () => ['completed_at' => now()]);
     }
 }

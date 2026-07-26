@@ -16,14 +16,16 @@ class Task extends Model
         'total_seconds',
         'is_running',
         'timer_started_at',
+        'completed_at',
     ];
 
     protected $casts = [
         'is_running' => 'boolean',
         'timer_started_at' => 'datetime',
+        'completed_at' => 'datetime',
     ];
 
-    protected $appends = ['this_task_total_entry'];
+    protected $appends = ['this_task_total_entry', 'is_completed'];
 
     /**
      * The `this_task_total_entry` accessor reads `$this->project->hourly_rate`,
@@ -53,5 +55,10 @@ class Task extends Model
     public function getThisTaskTotalEntryAttribute(): float
     {
         return $this->thisTaskTotalEntryInCents() / 100;
+    }
+
+    public function getIsCompletedAttribute(): bool
+    {
+        return $this->completed_at !== null;
     }
 }

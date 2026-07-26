@@ -20,6 +20,10 @@ class TaskController extends Controller
     {
         $this->authorize('view', $project);
 
+        // The serialized project runs its appended amount_paid/outstanding
+        // accessors, which read the payment ledger — load it so they don't query.
+        $project->loadMissing('payments');
+
         return Inertia::render('Tasks/Index', [
             'client' => $client,
             'project' => $project,
@@ -33,6 +37,8 @@ class TaskController extends Controller
     public function create(Client $client, Project $project): Response
     {
         $this->authorize('create', [Task::class, $project]);
+
+        $project->loadMissing('tasks', 'payments');
 
         return Inertia::render('Tasks/Create', [
             'client' => $client,
@@ -56,6 +62,8 @@ class TaskController extends Controller
     public function edit(Client $client, Project $project, Task $task): Response
     {
         $this->authorize('update', $task);
+
+        $project->loadMissing('tasks', 'payments');
 
         return Inertia::render('Tasks/Edit', [
             'client' => $client,
@@ -134,6 +142,36 @@ class TaskController extends Controller
             'timer_started_at' => null,
             'total_seconds' => $newTotalSeconds,
         ]);
+
+        return redirect()->back();
+    }
+
+    /**
+     * Mark a task done. A completed task can't still be accruing time, so a
+     * running timer is stopped first (banking the elapsed seconds).
+     */
+    public function complete(Client $client, Project $project, Task $task): RedirectResponse
+    {
+        $this->authorize('update', $task);
+
+        $attributes = ['completed_at' => now()];
+
+        if ($task->is_running) {
+            $attributes['is_running'] = false;
+            $attributes['total_seconds'] = $task->total_seconds + $task->timer_started_at->diffInSeconds(now());
+            $attributes['timer_started_at'] = null;
+        }
+
+        $task->update($attributes);
+
+        return redirect()->back();
+    }
+
+    public function reopen(Client $client, Project $project, Task $task): RedirectResponse
+    {
+        $this->authorize('update', $task);
+
+        $task->update(['completed_at' => null]);
 
         return redirect()->back();
     }

@@ -17,7 +17,9 @@ class ClientController extends Controller
     public function index(): Response
     {
         return Inertia::render('Clients/Index', [
-            'clients' => auth()->user()->clients()->with('projects.tasks')->get(),
+            // `projects.payments` is eager-loaded so each project's appended
+            // amount_paid/outstanding accessors don't fire a query per project.
+            'clients' => auth()->user()->clients()->with('projects.tasks', 'projects.payments')->get(),
         ]);
     }
 

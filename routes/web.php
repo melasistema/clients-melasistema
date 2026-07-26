@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TrashController;
@@ -24,6 +25,31 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clients', ClientController::class)->except('show');
     Route::resource('clients.projects', ProjectController::class)->scoped()->except('show');
     Route::resource('clients.projects.tasks', TaskController::class)->scoped()->except('show');
+
+    // The payment ledger. Only store/destroy — there is no listing (payments are
+    // rendered inline on the project) and no detail/edit page. `scoped()` enforces
+    // the payment belongs to the project belongs to the client.
+    Route::resource('clients.projects.payments', PaymentController::class)
+        ->scoped()
+        ->only(['store', 'destroy']);
+
+    // Completion toggles. Explicit POSTs (like the timers below) with scoped
+    // bindings so the URL nesting must be real.
+    Route::post('clients/{client}/projects/{project}/complete', [ProjectController::class, 'complete'])
+        ->scopeBindings()
+        ->name('clients.projects.complete');
+
+    Route::post('clients/{client}/projects/{project}/reopen', [ProjectController::class, 'reopen'])
+        ->scopeBindings()
+        ->name('clients.projects.reopen');
+
+    Route::post('clients/{client}/projects/{project}/tasks/{task}/complete', [TaskController::class, 'complete'])
+        ->scopeBindings()
+        ->name('clients.projects.tasks.complete');
+
+    Route::post('clients/{client}/projects/{project}/tasks/{task}/reopen', [TaskController::class, 'reopen'])
+        ->scopeBindings()
+        ->name('clients.projects.tasks.reopen');
 
     Route::post('clients/{client}/projects/{project}/tasks/{task}/start-timer', [TaskController::class, 'startTimer'])
         ->scopeBindings()

@@ -23,11 +23,13 @@ test('serializing the client hierarchy does not scale queries with task count', 
 
     DB::enableQueryLog();
 
-    // Mirror ClientController@index, then force the appended accessors to run.
-    $user->clients()->with('projects.tasks')->get()->toArray();
+    // Mirror ClientController@index, then force the appended accessors to run —
+    // including amount_paid/outstanding, which read each project's payments.
+    $user->clients()->with('projects.tasks', 'projects.payments')->get()->toArray();
 
-    // clients + projects + tasks = 3 queries, independent of the 12 tasks above.
-    expect(DB::getQueryLog())->toHaveCount(3);
+    // clients + projects + tasks + payments = 4 queries, independent of the 12
+    // tasks above (and of how many payments each project has).
+    expect(DB::getQueryLog())->toHaveCount(4);
 });
 
 test('chaperone still yields correct per-task earnings', function () {

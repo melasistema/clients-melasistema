@@ -21,7 +21,10 @@ class ProjectController extends Controller
 
         return Inertia::render('Projects/Index', [
             'client' => $client,
-            'projects' => $client->projects()->with('tasks')->get(),
+            // `payments` is eager-loaded alongside `tasks` because the projects'
+            // appended amount_paid/outstanding accessors read it — otherwise the
+            // listing fires one payments query per project (N+1).
+            'projects' => $client->projects()->with('tasks', 'payments')->get(),
         ]);
     }
 
@@ -54,6 +57,11 @@ class ProjectController extends Controller
     {
         $this->authorize('update', $project);
 
+        // Edit doubles as the project's detail surface (there are no show pages):
+        // load tasks + the payment ledger so the appended totals and the payments
+        // panel render without extra queries.
+        $project->load('tasks', 'payments');
+
         return Inertia::render('Projects/Edit', [
             'client' => $client,
             'project' => $project,
@@ -68,6 +76,34 @@ class ProjectController extends Controller
         $project->update($request->validated());
 
         return redirect()->route('clients.projects.index', $client->id);
+    }
+
+    /**
+     * Mark the project completed (work delivered). Completion is independent of
+     * payment — a completed project may still be fully or partially unpaid.
+     */
+    public function complete(Client $client, Project $project): RedirectResponse
+    {
+        $this->authorize('update', $project);
+
+        $project->update(['completed_at' => now()]);
+
+        return redirect()->back();
+    }
+
+    /**
+     * Reopen a completed project. Blocked once it is fully paid: a settled
+     * project can't be un-completed (the frontend also hides the action).
+     */
+    public function reopen(Client $client, Project $project): RedirectResponse
+    {
+        $this->authorize('update', $project);
+
+        abort_if($project->is_fully_paid, 403, 'A fully paid project cannot be reopened.');
+
+        $project->update(['completed_at' => null]);
+
+        return redirect()->back();
     }
 
     /**
