@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/melasistema/clients-melasistema/compare/v1.0.0...v1.1.0) (2026-07-26)
+
+
+### Features
+
+* add completion nudge ([83f83ff](https://github.com/melasistema/clients-melasistema/commit/83f83ff3b9d4ae4e369ee9eaf8daaa306ee2b67f))
+* **projects:** completion & payment UI, non-billable surfaces ([fc6d5cf](https://github.com/melasistema/clients-melasistema/commit/fc6d5cf44c8c042ec8cd0db38b4aee13c02a50ae))
+* **projects:** completion, staged-payment ledger & non-billable projects (backend) ([ec61b24](https://github.com/melasistema/clients-melasistema/commit/ec61b241a0667a64d7eb38f0cae9c6617e0ff9d4))
+
 ## [1.0.0](https://github.com/melasistema/clients-melasistema/compare/v0.0.63...v1.0.0) (2026-07-26)
 
 ### [0.0.63](https://github.com/melasistema/clients-melasistema/compare/v0.0.62...v0.0.63) (2026-07-26)
