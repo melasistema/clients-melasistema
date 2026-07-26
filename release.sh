@@ -19,7 +19,10 @@ git pull origin $PRODUCTION_BRANCH
 # 3. Run the release automation script
 echo "Running release automation (semantic versioning, tagging, and changelog)..."
 # This command bumps the version, creates a new commit, and tags it.
-npm run release
+# Extra args are forwarded to standard-version, e.g.:
+#   ./release.sh --release-as 1.0.0   (force a specific version — used once to leave 0.x)
+#   ./release.sh --dry-run            (preview the bump without writing anything)
+npm run release -- "$@"
 
 # 4. Push the new commit and the tag to GitHub
 echo "Pushing new release commit and tag to origin..."
