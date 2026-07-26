@@ -53,6 +53,20 @@ export interface Client {
     updated_at?: string;
 }
 
+// A project's billing mode is derived on the backend from agreed_fee + hourly_rate.
+export type BillingMode = 'fixed' | 'hourly' | 'non_billable';
+
+export interface Payment {
+    id: number;
+    project_id: number;
+    // Serialized from a decimal:2 cast — arrives as a string ("1500.00").
+    amount: string;
+    paid_at: string;
+    note: string | null;
+    created_at?: string;
+    updated_at?: string;
+}
+
 export interface Project {
     id: number;
     client_id: number;
@@ -61,9 +75,19 @@ export interface Project {
     // Serialized from a decimal:2 cast, so it arrives as a string ("85.00").
     // The number <input> and Intl formatter both coerce it fine.
     hourly_rate: string;
-    paid_at: string | null;
-    total_earnings: number;
+    // The fixed quote, or null for hourly / non-billable projects (string when set).
+    agreed_fee: string | null;
+    completed_at: string | null;
+    // Derived accessors (see app/Models/Project.php) — read, never recomputed here.
+    billing_mode: BillingMode;
+    total_earnings: number; // what is owed: fee, or time x rate, or 0
+    total_tracked_seconds: number;
+    amount_paid: number;
+    outstanding: number;
+    is_completed: boolean;
+    is_fully_paid: boolean;
     tasks?: Task[];
+    payments?: Payment[];
     created_at?: string;
     updated_at?: string;
 }
@@ -75,7 +99,9 @@ export interface Task {
     total_seconds: number;
     is_running: boolean;
     timer_started_at: string | null;
+    completed_at: string | null;
     this_task_total_entry: number;
+    is_completed: boolean;
     created_at?: string;
     updated_at?: string;
 }

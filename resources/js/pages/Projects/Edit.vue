@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 const props = defineProps<{ client: Client; project: Project }>();
 
@@ -15,12 +16,54 @@ const form = useForm({
     name: props.project.name,
     description: props.project.description,
     hourly_rate: props.project.hourly_rate,
-    paid_at: props.project.paid_at,
+    agreed_fee: (props.project.agreed_fee ?? '') as number | string,
 });
 
 const submit = () => {
-    form.put(route('clients.projects.update', [props.client.id, props.project.id]));
+    form.transform((data) => ({
+        ...data,
+        agreed_fee: data.agreed_fee === '' || data.agreed_fee === null ? null : data.agreed_fee,
+    })).put(route('clients.projects.update', [props.client.id, props.project.id]));
 };
+
+// The payment ledger only makes sense when something is owed.
+const showPayments = computed(() => props.project.billing_mode !== 'non_billable');
+const feeAmount = computed(() => Number(props.project.agreed_fee ?? 0));
+
+const paymentForm = useForm({
+    amount: '' as number | string,
+    paid_at: new Date().toISOString().slice(0, 10),
+    note: '' as string | null,
+});
+
+const addPayment = () => {
+    paymentForm.post(route('clients.projects.payments.store', [props.client.id, props.project.id]), {
+        preserveScroll: true,
+        onSuccess: () => paymentForm.reset('amount', 'note'),
+    });
+};
+
+const deleteForm = useForm({});
+
+const removePayment = (paymentId: number) => {
+    deleteForm.delete(route('clients.projects.payments.destroy', [props.client.id, props.project.id, paymentId]), {
+        preserveScroll: true,
+    });
+};
+
+// Quick-fill helpers for fixed-price projects: a fraction of the fee, or whatever
+// is still outstanding.
+const fillPercent = (fraction: number, note: string) => {
+    paymentForm.amount = (feeAmount.value * fraction).toFixed(2);
+    paymentForm.note = note;
+};
+
+const fillRemaining = () => {
+    paymentForm.amount = Math.max(props.project.outstanding, 0).toFixed(2);
+    paymentForm.note = 'Final balance';
+};
+
+const formatEarnings = (value: number | string) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(Number(value));
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Clients', href: '/clients' },
@@ -53,12 +96,24 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <Label for="hourly_rate">Hourly rate (€)</Label>
                     <Input id="hourly_rate" v-model="form.hourly_rate" type="number" step="0.01" min="0" />
                     <InputError :message="form.errors.hourly_rate" />
+                    <p class="text-xs text-muted-foreground">Set to 0 for personal, non-billable work you still want to time-track.</p>
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="paid_at">Paid at</Label>
-                    <Input id="paid_at" v-model="form.paid_at" type="datetime-local" />
-                    <InputError :message="form.errors.paid_at" />
+                    <Label for="agreed_fee">Agreed fee (€) — optional</Label>
+                    <Input
+                        id="agreed_fee"
+                        v-model="form.agreed_fee"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Leave blank to bill by the hour"
+                    />
+                    <InputError :message="form.errors.agreed_fee" />
+                    <p class="text-xs text-muted-foreground">
+                        Set a fee for a fixed-price project — the client owes this amount and tracked time becomes reference only. Leave blank to bill
+                        hourly.
+                    </p>
                 </div>
 
                 <div class="flex items-center justify-end gap-4">
@@ -66,6 +121,78 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <Button type="submit" :disabled="form.processing">Save</Button>
                 </div>
             </form>
+
+            <!-- Payment ledger: deposit, milestones, final balance. Hidden for
+                 non-billable projects (nothing is owed). -->
+            <section v-if="showPayments" class="mt-12 max-w-xl">
+                <h2 class="text-lg font-medium text-foreground">Payments</h2>
+                <p class="text-sm text-muted-foreground">Record what the client has paid — deposit, milestones, final balance.</p>
+
+                <div class="mt-4 grid grid-cols-3 gap-3">
+                    <div class="rounded-xl border p-4">
+                        <div class="text-xs text-muted-foreground">Owed</div>
+                        <div class="mt-1 font-medium text-foreground">{{ formatEarnings(project.total_earnings) }}</div>
+                    </div>
+                    <div class="rounded-xl border p-4">
+                        <div class="text-xs text-muted-foreground">Paid</div>
+                        <div class="mt-1 font-medium text-foreground">{{ formatEarnings(project.amount_paid) }}</div>
+                    </div>
+                    <div class="rounded-xl border p-4">
+                        <div class="text-xs text-muted-foreground">Outstanding</div>
+                        <div
+                            class="mt-1 font-medium"
+                            :class="project.outstanding > 0 ? 'text-amber-600 dark:text-amber-500' : 'text-green-600 dark:text-green-500'"
+                        >
+                            {{ formatEarnings(project.outstanding) }}
+                        </div>
+                    </div>
+                </div>
+
+                <ul class="mt-4 divide-y rounded-xl border">
+                    <li v-for="payment in project.payments ?? []" :key="payment.id" class="flex items-center justify-between gap-4 p-3">
+                        <div>
+                            <div class="font-medium text-foreground">{{ formatEarnings(payment.amount) }}</div>
+                            <div class="text-sm text-muted-foreground">
+                                {{ payment.paid_at }}<span v-if="payment.note"> · {{ payment.note }}</span>
+                            </div>
+                        </div>
+                        <Button variant="ghost" size="sm" @click="removePayment(payment.id)">Remove</Button>
+                    </li>
+                    <li v-if="(project.payments ?? []).length === 0" class="p-4 text-center text-sm text-muted-foreground">
+                        No payments recorded yet.
+                    </li>
+                </ul>
+
+                <form class="mt-4 space-y-4 rounded-xl border p-4" @submit.prevent="addPayment">
+                    <div v-if="project.billing_mode === 'fixed'" class="flex flex-wrap gap-2">
+                        <Button type="button" variant="outline" size="sm" @click="fillPercent(0.3, 'Deposit (30%)')">Deposit 30%</Button>
+                        <Button type="button" variant="outline" size="sm" @click="fillPercent(0.5, 'Deposit (50%)')">50%</Button>
+                        <Button type="button" variant="outline" size="sm" @click="fillRemaining">Remaining balance</Button>
+                    </div>
+
+                    <div class="grid gap-4 sm:grid-cols-3">
+                        <div class="grid gap-2">
+                            <Label for="payment_amount">Amount (€)</Label>
+                            <Input id="payment_amount" v-model="paymentForm.amount" type="number" step="0.01" min="0.01" />
+                            <InputError :message="paymentForm.errors.amount" />
+                        </div>
+                        <div class="grid gap-2">
+                            <Label for="payment_date">Date</Label>
+                            <Input id="payment_date" v-model="paymentForm.paid_at" type="date" />
+                            <InputError :message="paymentForm.errors.paid_at" />
+                        </div>
+                        <div class="grid gap-2">
+                            <Label for="payment_note">Note</Label>
+                            <Input id="payment_note" v-model="paymentForm.note" type="text" placeholder="Deposit, milestone…" />
+                            <InputError :message="paymentForm.errors.note" />
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <Button type="submit" size="sm" :disabled="paymentForm.processing">Add payment</Button>
+                    </div>
+                </form>
+            </section>
         </div>
     </AppLayout>
 </template>

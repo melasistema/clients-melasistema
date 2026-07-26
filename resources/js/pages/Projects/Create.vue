@@ -15,10 +15,15 @@ const form = useForm({
     name: '',
     description: '',
     hourly_rate: 0,
+    agreed_fee: '' as number | string,
 });
 
 const submit = () => {
-    form.post(route('clients.projects.store', props.client.id));
+    // An empty fee means "no fee" (hourly / non-billable) — send null, not "".
+    form.transform((data) => ({
+        ...data,
+        agreed_fee: data.agreed_fee === '' || data.agreed_fee === null ? null : data.agreed_fee,
+    })).post(route('clients.projects.store', props.client.id));
 };
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -52,6 +57,24 @@ const breadcrumbs: BreadcrumbItem[] = [
                     <Label for="hourly_rate">Hourly rate (€)</Label>
                     <Input id="hourly_rate" v-model="form.hourly_rate" type="number" step="0.01" min="0" />
                     <InputError :message="form.errors.hourly_rate" />
+                    <p class="text-xs text-muted-foreground">Set to 0 for personal, non-billable work you still want to time-track.</p>
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="agreed_fee">Agreed fee (€) — optional</Label>
+                    <Input
+                        id="agreed_fee"
+                        v-model="form.agreed_fee"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Leave blank to bill by the hour"
+                    />
+                    <InputError :message="form.errors.agreed_fee" />
+                    <p class="text-xs text-muted-foreground">
+                        Set a fee for a fixed-price project — the client owes this amount and tracked time becomes reference only. Leave blank to bill
+                        hourly.
+                    </p>
                 </div>
 
                 <div class="flex items-center justify-end gap-4">

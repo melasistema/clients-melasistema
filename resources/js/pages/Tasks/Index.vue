@@ -12,11 +12,12 @@ import {
     AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project, type Task } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps<{ client: Client; project: Project; tasks: Task[] }>();
 
@@ -27,6 +28,11 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 const form = useForm({});
+
+// Completed tasks are hidden by default; a toggle brings them back (muted).
+const showCompleted = ref(false);
+const completedCount = computed(() => props.tasks.filter((task) => task.is_completed).length);
+const visibleTasks = computed(() => (showCompleted.value ? props.tasks : props.tasks.filter((task) => !task.is_completed)));
 
 const currentTime = ref(Date.now());
 let timerInterval: ReturnType<typeof setInterval> | undefined;
@@ -61,6 +67,18 @@ const stopTimer = (taskId: number) => {
     });
 };
 
+const completeTask = (taskId: number) => {
+    form.post(route('clients.projects.tasks.complete', [props.client.id, props.project.id, taskId]), {
+        preserveScroll: true,
+    });
+};
+
+const reopenTask = (taskId: number) => {
+    form.post(route('clients.projects.tasks.reopen', [props.client.id, props.project.id, taskId]), {
+        preserveScroll: true,
+    });
+};
+
 const formatSeconds = (totalSeconds: number) => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -91,6 +109,11 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                 </Link>
             </div>
 
+            <label v-if="completedCount > 0" class="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+                <Checkbox id="show-completed" v-model="showCompleted" />
+                Show completed ({{ completedCount }})
+            </label>
+
             <div class="mt-6 rounded-xl border">
                 <Table>
                     <TableHeader>
@@ -103,11 +126,22 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        <TableRow v-for="task in tasks" :key="task.id">
-                            <TableCell class="font-medium text-foreground">{{ task.description }}</TableCell>
+                        <TableRow v-for="task in visibleTasks" :key="task.id" :class="task.is_completed ? 'opacity-60' : ''">
+                            <TableCell class="font-medium text-foreground">
+                                <div class="flex items-center gap-2">
+                                    <span :class="task.is_completed ? 'line-through' : ''">{{ task.description }}</span>
+                                    <span
+                                        v-if="task.is_completed"
+                                        class="inline-flex items-center rounded-md bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300"
+                                    >
+                                        Done
+                                    </span>
+                                </div>
+                            </TableCell>
                             <TableCell class="text-foreground">{{ formatSeconds(task.total_seconds) }}</TableCell>
                             <TableCell>
-                                <span v-if="task.is_running && task.timer_started_at" class="font-medium text-green-600 dark:text-green-500">
+                                <span v-if="task.is_completed" class="text-muted-foreground">—</span>
+                                <span v-else-if="task.is_running && task.timer_started_at" class="font-medium text-green-600 dark:text-green-500">
                                     Running ({{ formatTime(task.timer_started_at) }})
                                 </span>
                                 <span v-else class="text-muted-foreground">Stopped</span>
@@ -121,8 +155,12 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                                     >
                                         Edit
                                     </Link>
-                                    <Button v-if="!task.is_running" variant="secondary" size="sm" @click="startTimer(task.id)"> Start </Button>
-                                    <Button v-else variant="default" size="sm" @click="stopTimer(task.id)">Stop</Button>
+                                    <template v-if="!task.is_completed">
+                                        <Button v-if="!task.is_running" variant="secondary" size="sm" @click="startTimer(task.id)">Start</Button>
+                                        <Button v-else variant="default" size="sm" @click="stopTimer(task.id)">Stop</Button>
+                                        <Button variant="ghost" size="sm" @click="completeTask(task.id)">Complete</Button>
+                                    </template>
+                                    <Button v-else variant="ghost" size="sm" @click="reopenTask(task.id)">Reopen</Button>
                                     <AlertDialog>
                                         <AlertDialogTrigger as-child>
                                             <Button variant="destructive" size="sm">Delete</Button>
@@ -149,15 +187,18 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                                 </div>
                             </TableCell>
                         </TableRow>
-                        <TableRow v-if="tasks.length === 0">
+                        <TableRow v-if="visibleTasks.length === 0">
                             <TableCell colspan="5" class="py-10 text-center text-muted-foreground">
-                                No tasks yet.
-                                <Link
-                                    :href="route('clients.projects.tasks.create', [client.id, project.id])"
-                                    class="text-foreground underline underline-offset-4"
-                                >
-                                    Add the first task </Link
-                                >.
+                                <template v-if="tasks.length === 0">
+                                    No tasks yet.
+                                    <Link
+                                        :href="route('clients.projects.tasks.create', [client.id, project.id])"
+                                        class="text-foreground underline underline-offset-4"
+                                    >
+                                        Add the first task </Link
+                                    >.
+                                </template>
+                                <template v-else> All tasks are completed. Tick “Show completed” to see them. </template>
                             </TableCell>
                         </TableRow>
                     </TableBody>
