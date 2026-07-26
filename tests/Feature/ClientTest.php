@@ -72,5 +72,7 @@ test('a user can delete a client', function () {
         ->delete(route('clients.destroy', $client))
         ->assertRedirect(route('clients.index'));
 
-    $this->assertModelMissing($client);
+    // Deletes are soft (recoverable): the client is trashed, not destroyed. See
+    // SoftDeleteTest for the full subtree/rollup behaviour.
+    $this->assertSoftDeleted($client);
 });
