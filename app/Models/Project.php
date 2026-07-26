@@ -31,9 +31,16 @@ class Project extends Model
         return $this->belongsTo(Client::class);
     }
 
+    /**
+     * `chaperone()` hydrates each task's inverse `project` relation in memory as
+     * the tasks are loaded. Without it, serializing a task's appended
+     * `this_task_total_entry` (which reads `$this->project->hourly_rate`) lazy-loads
+     * the parent one query per task — an N+1 on every clients/projects listing.
+     * The task's `$hidden = ['project']` keeps this hydration out of the JSON.
+     */
     public function tasks(): HasMany
     {
-        return $this->hasMany(Task::class);
+        return $this->hasMany(Task::class)->chaperone();
     }
 
     public function getTotalEarningsAttribute(): float
