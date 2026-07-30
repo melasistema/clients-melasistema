@@ -14,12 +14,15 @@ import {
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useFormatters } from '@/composables/useFormatters';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 const props = defineProps<{ client: Client; projects: Project[] }>();
+
+const { formatCurrency, formatDuration } = useFormatters();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Clients', href: '/clients' },
@@ -63,23 +66,13 @@ const readyToComplete = (project: Project) =>
 
 const rateLabel = (project: Project) => {
     if (project.billing_mode === 'fixed') {
-        return `${formatEarnings(project.agreed_fee ?? 0)} fee`;
+        return `${formatCurrency(project.agreed_fee ?? 0)} fee`;
     }
     if (project.billing_mode === 'non_billable') {
         return '—';
     }
-    return `${formatEarnings(project.hourly_rate)}/h`;
+    return `${formatCurrency(project.hourly_rate)}/h`;
 };
-
-const formatSeconds = (totalSeconds: number) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-};
-
-const formatEarnings = (value: number | string) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(Number(value));
 </script>
 
 <template>
@@ -116,14 +109,14 @@ const formatEarnings = (value: number | string) => new Intl.NumberFormat('de-DE'
                                 <div class="text-muted-foreground">{{ project.description }}</div>
                             </TableCell>
                             <TableCell class="text-foreground">{{ rateLabel(project) }}</TableCell>
-                            <TableCell class="text-foreground">{{ formatSeconds(project.total_tracked_seconds) }}</TableCell>
+                            <TableCell class="text-foreground">{{ formatDuration(project.total_tracked_seconds) }}</TableCell>
                             <TableCell class="text-foreground">
-                                <div class="font-medium">{{ formatEarnings(project.total_earnings) }}</div>
+                                <div class="font-medium">{{ formatCurrency(project.total_earnings) }}</div>
                                 <div
                                     v-if="project.billing_mode !== 'non_billable' && project.outstanding > 0"
                                     class="text-xs text-amber-600 dark:text-amber-500"
                                 >
-                                    {{ formatEarnings(project.outstanding) }} outstanding
+                                    {{ formatCurrency(project.outstanding) }} outstanding
                                 </div>
                             </TableCell>
                             <TableCell>

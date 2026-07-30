@@ -14,12 +14,15 @@ import {
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useFormatters } from '@/composables/useFormatters';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project, type Task } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps<{ client: Client; project: Project; tasks: Task[] }>();
+
+const { formatCurrency, formatDuration } = useFormatters();
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Clients', href: '/clients' },
@@ -87,22 +90,13 @@ const reopenTask = (taskId: number) => {
     });
 };
 
-const formatSeconds = (totalSeconds: number) => {
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-};
-
+// The live elapsed time of a running timer, ticking off `currentTime`.
 const formatTime = (timestamp: string) => {
     const startedAt = new Date(timestamp).getTime();
     const diffInSeconds = Math.floor((currentTime.value - startedAt) / 1000);
 
-    return formatSeconds(Math.max(diffInSeconds, 0));
+    return formatDuration(Math.max(diffInSeconds, 0));
 };
-
-const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
 </script>
 
 <template>
@@ -154,7 +148,7 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                                     </span>
                                 </div>
                             </TableCell>
-                            <TableCell class="text-foreground">{{ formatSeconds(task.total_seconds) }}</TableCell>
+                            <TableCell class="text-foreground">{{ formatDuration(task.total_seconds) }}</TableCell>
                             <TableCell>
                                 <span v-if="task.is_completed" class="text-muted-foreground">—</span>
                                 <span v-else-if="task.is_running && task.timer_started_at" class="font-medium text-green-600 dark:text-green-500">
@@ -162,7 +156,7 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                                 </span>
                                 <span v-else class="text-muted-foreground">Stopped</span>
                             </TableCell>
-                            <TableCell class="font-medium text-foreground">{{ formatEarnings(task.this_task_total_entry) }}</TableCell>
+                            <TableCell class="font-medium text-foreground">{{ formatCurrency(task.this_task_total_entry) }}</TableCell>
                             <TableCell>
                                 <div class="flex items-center justify-end gap-2">
                                     <Link

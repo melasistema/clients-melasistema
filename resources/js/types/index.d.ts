@@ -17,9 +17,17 @@ export interface NavItem {
     isActive?: boolean;
 }
 
+// Currency + locale for the Intl money formatter, shared from config/money.php
+// so the whole frontend formats money one way (see composables/useFormatters).
+export interface MoneyConfig {
+    currency: string;
+    locale: string;
+}
+
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     name: string;
     registrationEnabled: boolean;
+    money: MoneyConfig;
     quote: { message: string; author: string };
     auth: Auth;
     ziggy: Config & { location: string };

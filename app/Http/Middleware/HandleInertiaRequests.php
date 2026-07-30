@@ -43,6 +43,13 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'registrationEnabled' => (bool) config('features.registration_enabled'),
+            // Currency + locale for the frontend's Intl money formatter. Set once
+            // in config/money.php (via .env) so self-hosters can switch currency
+            // without touching any Vue. See resources/js/composables/useFormatters.
+            'money' => [
+                'currency' => config('money.currency'),
+                'locale' => config('money.locale'),
+            ],
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),

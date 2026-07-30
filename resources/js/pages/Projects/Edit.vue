@@ -5,12 +5,15 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useFormatters } from '@/composables/useFormatters';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps<{ client: Client; project: Project }>();
+
+const { formatCurrency } = useFormatters();
 
 const form = useForm({
     name: props.project.name,
@@ -62,8 +65,6 @@ const fillRemaining = () => {
     paymentForm.amount = Math.max(props.project.outstanding, 0).toFixed(2);
     paymentForm.note = 'Final balance';
 };
-
-const formatEarnings = (value: number | string) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(Number(value));
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: 'Clients', href: '/clients' },
@@ -131,11 +132,11 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <div class="mt-4 grid grid-cols-3 gap-3">
                     <div class="rounded-xl border p-4">
                         <div class="text-xs text-muted-foreground">Owed</div>
-                        <div class="mt-1 font-medium text-foreground">{{ formatEarnings(project.total_earnings) }}</div>
+                        <div class="mt-1 font-medium text-foreground">{{ formatCurrency(project.total_earnings) }}</div>
                     </div>
                     <div class="rounded-xl border p-4">
                         <div class="text-xs text-muted-foreground">Paid</div>
-                        <div class="mt-1 font-medium text-foreground">{{ formatEarnings(project.amount_paid) }}</div>
+                        <div class="mt-1 font-medium text-foreground">{{ formatCurrency(project.amount_paid) }}</div>
                     </div>
                     <div class="rounded-xl border p-4">
                         <div class="text-xs text-muted-foreground">Outstanding</div>
@@ -143,7 +144,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                             class="mt-1 font-medium"
                             :class="project.outstanding > 0 ? 'text-amber-600 dark:text-amber-500' : 'text-green-600 dark:text-green-500'"
                         >
-                            {{ formatEarnings(project.outstanding) }}
+                            {{ formatCurrency(project.outstanding) }}
                         </div>
                     </div>
                 </div>
@@ -151,7 +152,7 @@ const breadcrumbs: BreadcrumbItem[] = [
                 <ul class="mt-4 divide-y rounded-xl border">
                     <li v-for="payment in project.payments ?? []" :key="payment.id" class="flex items-center justify-between gap-4 p-3">
                         <div>
-                            <div class="font-medium text-foreground">{{ formatEarnings(payment.amount) }}</div>
+                            <div class="font-medium text-foreground">{{ formatCurrency(payment.amount) }}</div>
                             <div class="text-sm text-muted-foreground">
                                 {{ payment.paid_at }}<span v-if="payment.note"> · {{ payment.note }}</span>
                             </div>

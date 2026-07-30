@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useFormatters } from '@/composables/useFormatters';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
@@ -21,13 +22,13 @@ defineProps<{ clients: Client[] }>();
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Clients', href: '/clients' }];
 
+const { formatCurrency } = useFormatters();
+
 const form = useForm({});
 
 const deleteClient = (clientId: number) => {
     form.delete(route('clients.destroy', clientId), { preserveScroll: true });
 };
-
-const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(value);
 </script>
 
 <template>
@@ -66,7 +67,7 @@ const formatEarnings = (value: number) => new Intl.NumberFormat('de-DE', { style
                                 <div class="text-muted-foreground">{{ client.unique_code }}</div>
                             </TableCell>
                             <TableCell class="font-medium text-foreground">
-                                {{ formatEarnings(client.total_earnings) }}
+                                {{ formatCurrency(client.total_earnings) }}
                             </TableCell>
                             <TableCell>
                                 <div class="flex items-center justify-end gap-2">
