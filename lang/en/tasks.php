@@ -36,5 +36,6 @@ return [
         'hours' => 'Hours',
         'minutes' => 'Minutes',
         'seconds' => 'Seconds',
+        'total' => 'Total',
     ],
 ];

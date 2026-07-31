@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useFormatters } from '@/composables/useFormatters';
 import { useTranslations } from '@/composables/useTranslations';
 import { computed } from 'vue';
 
@@ -15,6 +16,7 @@ import { computed } from 'vue';
 const model = defineModel<number>({ required: true });
 
 const { __ } = useTranslations();
+const { formatDuration } = useFormatters();
 
 const clamp = (value: number, max: number): number => {
     if (Number.isNaN(value) || value < 0) return 0;
@@ -59,5 +61,10 @@ const seconds = computed({
             <Input v-model.number="seconds" type="number" min="0" max="59" inputmode="numeric" class="text-center tabular-nums" />
             <Label class="text-center text-xs font-normal text-muted-foreground">{{ __('tasks.form.seconds') }}</Label>
         </div>
+
+        <p class="col-span-3 text-sm text-muted-foreground">
+            {{ __('tasks.form.total') }}
+            <span class="font-medium text-foreground tabular-nums">{{ formatDuration(model) }}</span>
+        </p>
     </div>
 </template>
