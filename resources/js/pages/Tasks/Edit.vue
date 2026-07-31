@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
+import TimeInput from '@/components/TimeInput.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslations } from '@/composables/useTranslations';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project, type Task } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import { computed } from 'vue';
 
 const props = defineProps<{ client: Client; project: Project; task: Task }>();
 
@@ -23,28 +22,6 @@ const form = useForm({
 const submit = () => {
     form.put(route('clients.projects.tasks.update', [props.client.id, props.project.id, props.task.id]));
 };
-
-const formattedTime = computed({
-    get: () => {
-        const totalSeconds = form.total_seconds;
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    },
-    set: (value: string) => {
-        const parts = value.split(':').map(Number);
-        let totalSeconds = 0;
-        if (parts.length === 3) {
-            totalSeconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
-        } else if (parts.length === 2) {
-            totalSeconds = parts[0] * 60 + parts[1];
-        } else if (parts.length === 1) {
-            totalSeconds = parts[0];
-        }
-        form.total_seconds = totalSeconds;
-    },
-});
 
 const breadcrumbs: BreadcrumbItem[] = [
     { title: __('clients.title'), href: '/clients' },
@@ -72,8 +49,8 @@ const breadcrumbs: BreadcrumbItem[] = [
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="total_seconds">{{ __('tasks.form.time') }}</Label>
-                    <Input id="total_seconds" v-model="formattedTime" type="text" placeholder="00:00:00" />
+                    <Label>{{ __('tasks.form.time') }}</Label>
+                    <TimeInput v-model="form.total_seconds" />
                     <InputError :message="form.errors.total_seconds" />
                 </div>
 

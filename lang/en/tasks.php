@@ -32,6 +32,9 @@ return [
         'create_description' => 'Add a new task for :project.',
         'edit_title' => 'Edit task',
         'edit_description' => 'Update this task for :project.',
-        'time' => 'Time (HH:MM:SS)',
+        'time' => 'Time tracked',
+        'hours' => 'Hours',
+        'minutes' => 'Minutes',
+        'seconds' => 'Seconds',
     ],
 ];

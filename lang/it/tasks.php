@@ -32,6 +32,9 @@ return [
         'create_description' => 'Aggiungi una nuova attività per :project.',
         'edit_title' => 'Modifica attività',
         'edit_description' => 'Aggiorna questa attività per :project.',
-        'time' => 'Tempo (HH:MM:SS)',
+        'time' => 'Tempo tracciato',
+        'hours' => 'Ore',
+        'minutes' => 'Minuti',
+        'seconds' => 'Secondi',
     ],
 ];
