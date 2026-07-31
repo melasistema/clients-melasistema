@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/melasistema/clients-melasistema/compare/v1.1.0...v1.2.0) (2026-07-31)
+
+
+### Features
+
+* **dashboard:** owner overview with earnings, payments & live timer ([fa7b2f0](https://github.com/melasistema/clients-melasistema/commit/fa7b2f040525b82da2b004a7b0b27f3074f91fde))
+* **i18n:** config-driven UI locale with lang files + __() composable ([0c0f089](https://github.com/melasistema/clients-melasistema/commit/0c0f089fcc9339b93c620a0b2df3b4eb8ace92dc))
+* **money:** centralize currency/locale into config + shared formatter ([636ce27](https://github.com/melasistema/clients-melasistema/commit/636ce2746c614a953d4899a7b94a5e755cd7c86d))
+* **tasks:** segmented H/M/S time picker on task edit ([98735ed](https://github.com/melasistema/clients-melasistema/commit/98735ed0933b23ddf9e3930ec0b6905fbd9e7287))
+* **timer:** single running timer + persistent resumable bar ([49ef257](https://github.com/melasistema/clients-melasistema/commit/49ef2576f1459a489d870b22aa614012bcf281af))
+
 ## [1.1.0](https://github.com/melasistema/clients-melasistema/compare/v1.0.0...v1.1.0) (2026-07-26)
 
 
