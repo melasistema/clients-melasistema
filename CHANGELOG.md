@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/melasistema/clients-melasistema/compare/v1.2.0...v1.3.0) (2026-07-31)
+
+
+### Features
+
+* **tasks:** live total readout under the time picker ([8b696b3](https://github.com/melasistema/clients-melasistema/commit/8b696b3641758c015937ab49430b596ce3a63a73))
+
 ## [1.2.0](https://github.com/melasistema/clients-melasistema/compare/v1.1.0...v1.2.0) (2026-07-31)
 
 
