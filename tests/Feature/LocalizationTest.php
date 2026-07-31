@@ -18,6 +18,7 @@ test('the active locale and its translations are shared to the frontend', functi
             ->where('translations.clients.title', 'Clients')
             ->where('translations.settings.nav.profile', 'Profile')
             ->where('translations.auth.login.submit', 'Log in')
+            ->where('translations.dashboard.stats.outstanding', 'Outstanding')
         );
 });
 
@@ -34,6 +35,7 @@ test('switching the app locale switches the shared translations', function () {
             ->where('translations.clients.title', 'Clienti')
             ->where('translations.settings.nav.profile', 'Profilo')
             ->where('translations.auth.login.submit', 'Accedi')
+            ->where('translations.dashboard.stats.outstanding', 'Da incassare')
         );
 });
 

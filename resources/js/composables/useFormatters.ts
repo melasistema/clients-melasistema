@@ -35,5 +35,10 @@ export function useFormatters() {
     const formatDate = (value: string | null | undefined): string =>
         value ? new Intl.DateTimeFormat(page.props.money.locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : '';
 
-    return { formatCurrency, formatDuration, formatDate };
+    // A date without a time — for date-only values like a payment's `paid_at`,
+    // where a midnight time would be noise.
+    const formatDay = (value: string | null | undefined): string =>
+        value ? new Intl.DateTimeFormat(page.props.money.locale, { dateStyle: 'medium' }).format(new Date(value)) : '';
+
+    return { formatCurrency, formatDuration, formatDate, formatDay };
 }
