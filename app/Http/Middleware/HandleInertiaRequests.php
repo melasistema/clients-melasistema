@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Task;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -59,12 +60,76 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            // The single running timer (or null), shared on every request so the
+            // persistent LiveTimer lives in the app chrome on every page rather
+            // than only the dashboard. This is also the shape a NativePHP
+            // menu-bar timer will read.
+            'activeTimer' => $this->activeTimer($request),
+            // The last stopped task (or null), from the `last_timer` cookie. Lets the
+            // timer bar keep showing what you were working on — clickable + resumable
+            // — after you stop, until you dismiss it. Shown only when nothing runs.
+            'lastTimer' => $this->lastTimer($request),
             'ziggy' => [
                 ...(new Ziggy)->toArray(),
                 'location' => $request->url(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
+    }
+
+    /**
+     * The single running timer for the current user (if any), scoped through the
+     * ownership chain. `whereHas` honours the soft-delete scope, so a timer under a
+     * trashed project/client doesn't surface. Null for guests and when nothing runs.
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function activeTimer(Request $request): ?array
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return null;
+        }
+
+        $task = Task::whereHas('project.client', fn ($query) => $query->where('user_id', $user->id))
+            ->where('is_running', true)
+            ->with('project.client')
+            ->latest('timer_started_at')
+            ->first();
+
+        if ($task === null) {
+            return null;
+        }
+
+        return [
+            'client_id' => $task->project->client->id,
+            'project_id' => $task->project->id,
+            'task_id' => $task->id,
+            'task_description' => $task->description,
+            'project_name' => $task->project->name,
+            'client_name' => $task->project->client->company_name,
+            'timer_started_at' => $task->timer_started_at,
+        ];
+    }
+
+    /**
+     * The last stopped task, decoded from the plaintext `last_timer` cookie
+     * (set by TaskController@stopTimer). Null when absent or malformed.
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function lastTimer(Request $request): ?array
+    {
+        $raw = $request->cookie('last_timer');
+
+        if (! is_string($raw) || $raw === '') {
+            return null;
+        }
+
+        $data = json_decode($raw, true);
+
+        return is_array($data) ? $data : null;
     }
 
     /**

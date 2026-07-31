@@ -3,11 +3,6 @@
 return [
     'title' => 'Dashboard',
 
-    'active_timer' => [
-        'label' => 'In esecuzione',
-        'stop' => 'Ferma timer',
-    ],
-
     'stats' => [
         'outstanding' => 'Da incassare',
         'outstanding_sub' => 'su :count progetti',

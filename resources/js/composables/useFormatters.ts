@@ -21,11 +21,13 @@ export function useFormatters() {
     // strings (decimal:2 casts like a payment's `amount`); coerce either.
     const formatCurrency = (value: number | string): string => currency.format(Number(value));
 
-    // Seconds → HH:MM:SS (zero-padded). Used for tracked time everywhere.
+    // Seconds → HH:MM:SS (zero-padded). Used for tracked time everywhere. Floors
+    // first so a stray fractional value never leaks decimals into the seconds slot.
     const formatDuration = (totalSeconds: number): string => {
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
+        const whole = Math.floor(Number(totalSeconds) || 0);
+        const hours = Math.floor(whole / 3600);
+        const minutes = Math.floor((whole % 3600) / 60);
+        const seconds = whole % 60;
 
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };

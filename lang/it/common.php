@@ -20,6 +20,16 @@ return [
     'deleted' => 'Eliminato',
     'saved' => 'Salvato.',
 
+    // Struttura dell'app: la barra del timer in esecuzione nell'header (LiveTimer.vue),
+    // mostrata su ogni pagina mentre il timer di un'attività è in corso.
+    'timer' => [
+        'running' => 'In esecuzione',
+        'stop' => 'Ferma timer',
+        'last' => 'Ultimo',
+        'resume' => 'Riprendi',
+        'dismiss' => 'Chiudi',
+    ],
+
     // Struttura dell'app: navigazione della sidebar, link a piè di pagina e menu utente.
     'nav' => [
         'dashboard' => 'Dashboard',

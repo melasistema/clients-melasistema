@@ -24,10 +24,41 @@ export interface MoneyConfig {
     locale: string;
 }
 
+// The one running task (if any), shared on every request by HandleInertiaRequests
+// so the persistent LiveTimer renders in the app chrome on every page — not just
+// the dashboard. Null when nothing is running. This global shape is what a future
+// NativePHP menu-bar timer reads too.
+export interface ActiveTimer {
+    client_id: number;
+    project_id: number;
+    task_id: number;
+    task_description: string;
+    project_name: string;
+    client_name: string;
+    timer_started_at: string;
+}
+
+// The last stopped task (from the `last_timer` cookie), shared so the timer bar
+// keeps showing what you were working on — clickable + resumable — after a stop,
+// until dismissed. Shown only when no timer is running. `total_seconds` is the
+// task's banked cumulative time (static, not ticking).
+export interface LastTimer {
+    client_id: number;
+    project_id: number;
+    task_id: number;
+    task_description: string;
+    project_name: string;
+    total_seconds: number;
+}
+
 export type AppPageProps<T extends Record<string, unknown> = Record<string, unknown>> = T & {
     name: string;
     registrationEnabled: boolean;
     money: MoneyConfig;
+    // The running timer (or null), shared on every page — see LiveTimer.vue.
+    activeTimer: ActiveTimer | null;
+    // The last stopped task (or null) — the persistent, dismissible timer bar.
+    lastTimer: LastTimer | null;
     // Active UI language + its lang/{locale}/*.php messages (see useTranslations).
     locale: string;
     translations: Record<string, unknown>;

@@ -8,6 +8,8 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Cookie;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -118,23 +120,44 @@ class TaskController extends Controller
         return redirect()->route('trash.index');
     }
 
+    /**
+     * Start (or switch to) this task's timer. A freelancer can only work one task
+     * at a time, so this enforces a single running timer: any other running task of
+     * the owner is stopped first — banking its elapsed seconds — in one transaction.
+     * Also forgets the "last stopped" bar, since a timer is now running.
+     */
     public function startTimer(Client $client, Project $project, Task $task): RedirectResponse
     {
         $this->authorize('update', $task);
 
-        $task->update([
-            'is_running' => true,
-            'timer_started_at' => now(),
-        ]);
+        DB::transaction(function () use ($client, $task) {
+            $this->stopRunningTimers($client->user_id, exceptTaskId: $task->id);
+
+            $task->update([
+                'is_running' => true,
+                'timer_started_at' => now(),
+            ]);
+        });
+
+        Cookie::queue(Cookie::forget('last_timer'));
 
         return redirect()->back();
     }
 
+    /**
+     * Stop this task's timer, banking the elapsed seconds, and remember it as the
+     * "last stopped" task in a cookie so the header timer bar keeps showing what you
+     * were working on (clickable, resumable) until you dismiss it — even across page
+     * navigations.
+     */
     public function stopTimer(Client $client, Project $project, Task $task): RedirectResponse
     {
         $this->authorize('update', $task);
 
-        $secondsToAdd = $task->timer_started_at->diffInSeconds(now());
+        // Carbon 3's diffInSeconds returns a float (fractional seconds); cast so
+        // total_seconds stays a whole-second integer (the DB column is, and the
+        // last_timer cookie is read back raw).
+        $secondsToAdd = (int) $task->timer_started_at->diffInSeconds(now());
         $newTotalSeconds = $task->total_seconds + $secondsToAdd;
 
         $task->update([
@@ -143,7 +166,46 @@ class TaskController extends Controller
             'total_seconds' => $newTotalSeconds,
         ]);
 
+        Cookie::queue('last_timer', json_encode([
+            'client_id' => $client->id,
+            'project_id' => $project->id,
+            'task_id' => $task->id,
+            'task_description' => $task->description,
+            'project_name' => $project->name,
+            'total_seconds' => $newTotalSeconds,
+        ]), 60 * 24 * 30);
+
         return redirect()->back();
+    }
+
+    /**
+     * Dismiss the persistent "last stopped timer" bar by forgetting its cookie.
+     */
+    public function dismissLastTimer(): RedirectResponse
+    {
+        Cookie::queue(Cookie::forget('last_timer'));
+
+        return redirect()->back();
+    }
+
+    /**
+     * Stop every running timer owned by the given user (optionally excluding one
+     * task), banking each one's elapsed seconds. Backs the single-timer invariant.
+     */
+    private function stopRunningTimers(int $userId, ?int $exceptTaskId = null): void
+    {
+        $running = Task::whereHas('project.client', fn ($query) => $query->where('user_id', $userId))
+            ->where('is_running', true)
+            ->when($exceptTaskId, fn ($query) => $query->where('id', '!=', $exceptTaskId))
+            ->get();
+
+        foreach ($running as $task) {
+            $task->update([
+                'is_running' => false,
+                'timer_started_at' => null,
+                'total_seconds' => $task->total_seconds + (int) $task->timer_started_at->diffInSeconds(now()),
+            ]);
+        }
     }
 
     /**
@@ -158,7 +220,7 @@ class TaskController extends Controller
 
         if ($task->is_running) {
             $attributes['is_running'] = false;
-            $attributes['total_seconds'] = $task->total_seconds + $task->timer_started_at->diffInSeconds(now());
+            $attributes['total_seconds'] = $task->total_seconds + (int) $task->timer_started_at->diffInSeconds(now());
             $attributes['timer_started_at'] = null;
         }
 

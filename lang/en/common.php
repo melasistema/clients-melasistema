@@ -20,6 +20,16 @@ return [
     'deleted' => 'Deleted',
     'saved' => 'Saved.',
 
+    // App chrome: the persistent running-timer bar in the header (LiveTimer.vue),
+    // shown on every page while a task's timer runs.
+    'timer' => [
+        'running' => 'Currently running',
+        'stop' => 'Stop timer',
+        'last' => 'Last',
+        'resume' => 'Resume',
+        'dismiss' => 'Dismiss',
+    ],
+
     // App chrome: sidebar navigation, footer links and the user menu.
     'nav' => [
         'dashboard' => 'Dashboard',

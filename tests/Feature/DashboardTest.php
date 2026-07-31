@@ -46,23 +46,26 @@ test('the dashboard rolls up outstanding, received and tracked time for the owne
             ->where('awaiting_payment.0.project_name', $delivered->name)
             ->where('awaiting_payment.0.outstanding', 300)
             ->has('recent_payments', 2)
-            ->where('active_timer', null)
+            ->where('activeTimer', null)
         );
 });
 
-test('the dashboard surfaces the running timer', function () {
+test('the running timer is shared as app chrome on every page', function () {
     $user = User::factory()->create();
     $client = Client::factory()->create(['user_id' => $user->id]);
     $project = Project::factory()->create(['client_id' => $client->id]);
     $task = Task::factory()->running()->create(['project_id' => $project->id]);
 
+    // `activeTimer` is shared by HandleInertiaRequests, not a dashboard prop, so
+    // the persistent LiveTimer renders it on any authenticated page. Assert it via
+    // the shared prop (here on the clients index, deliberately not the dashboard).
     $this->actingAs($user)
-        ->get('/dashboard')
+        ->get('/clients')
         ->assertInertia(fn ($page) => $page
-            ->where('active_timer.task_id', $task->id)
-            ->where('active_timer.project_id', $project->id)
-            ->where('active_timer.client_id', $client->id)
-            ->where('active_timer.task_description', $task->description)
+            ->where('activeTimer.task_id', $task->id)
+            ->where('activeTimer.project_id', $project->id)
+            ->where('activeTimer.client_id', $client->id)
+            ->where('activeTimer.task_description', $task->description)
         );
 });
 
@@ -81,6 +84,6 @@ test('the dashboard only counts the acting user\'s data', function () {
             ->where('stats.outstanding_projects_count', 0)
             ->has('awaiting_payment', 0)
             ->has('recent_payments', 0)
-            ->where('active_timer', null)
+            ->where('activeTimer', null)
         );
 });

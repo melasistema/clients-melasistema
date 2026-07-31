@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import Breadcrumbs from '@/components/Breadcrumbs.vue';
+import LiveTimer from '@/components/LiveTimer.vue';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import type { BreadcrumbItemType } from '@/types';
 
@@ -23,5 +24,8 @@ withDefaults(
                 <Breadcrumbs :breadcrumbs="breadcrumbs" />
             </template>
         </div>
+
+        <!-- Persistent running-timer bar: present on every page while a timer runs. -->
+        <LiveTimer class="ml-auto" />
     </header>
 </template>

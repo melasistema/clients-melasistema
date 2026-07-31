@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Task;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -14,9 +13,10 @@ class DashboardController extends Controller
      * the dashboard never re-derives money a different way than the clients index.
      *
      * One eager-loaded pass over clients -> projects -> {tasks, payments} feeds all
-     * the money/time rollups (same 4-query shape as the clients index), plus a
-     * single scoped query for the running timer. Everything is mapped to plain
-     * view-models so the models' hidden relations / appended accessors don't run.
+     * the money/time rollups (same 4-query shape as the clients index). Everything
+     * is mapped to plain view-models so the models' hidden relations / appended
+     * accessors don't run. (The running-timer bar is app chrome now, shared on every
+     * request by HandleInertiaRequests, so it isn't a dashboard prop.)
      *
      * Note the deliberate asymmetry: money can be windowed ("received this month")
      * because payments carry a `paid_at`; tracked time cannot — a task only holds an
@@ -89,37 +89,8 @@ class DashboardController extends Controller
                 'received_all_time' => $paidCents / 100,
                 'tracked_seconds' => $trackedSeconds,
             ],
-            'active_timer' => $this->activeTimer($user->id),
             'awaiting_payment' => $awaiting->sortByDesc('outstanding')->values(),
             'recent_payments' => $paymentsFeed->sortByDesc('paid_at')->take(5)->values(),
         ]);
-    }
-
-    /**
-     * The single running timer (if any), scoped to this user through the ownership
-     * chain. `whereHas` honours the soft-delete scope, so a timer under a trashed
-     * project/client doesn't surface.
-     */
-    private function activeTimer(int $userId): ?array
-    {
-        $task = Task::whereHas('project.client', fn ($query) => $query->where('user_id', $userId))
-            ->where('is_running', true)
-            ->with('project.client')
-            ->latest('timer_started_at')
-            ->first();
-
-        if ($task === null) {
-            return null;
-        }
-
-        return [
-            'client_id' => $task->project->client->id,
-            'project_id' => $task->project->id,
-            'task_id' => $task->id,
-            'task_description' => $task->description,
-            'project_name' => $task->project->name,
-            'client_name' => $task->project->client->company_name,
-            'timer_started_at' => $task->timer_started_at,
-        ];
     }
 }

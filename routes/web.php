@@ -60,6 +60,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->scopeBindings()
         ->name('clients.projects.tasks.stopTimer');
 
+    // Dismiss the persistent "last stopped timer" bar (forgets the last_timer cookie).
+    Route::post('timer/dismiss', [TaskController::class, 'dismissLastTimer'])
+        ->name('timer.dismiss');
+
     // Trash / recovery. Soft-deleted records live here until restored or purged.
     // The recovery routes are flat (not nested) and bind with `withTrashed()` so a
     // trashed model resolves; each is gated by its policy's restore/forceDelete.

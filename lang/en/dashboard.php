@@ -3,11 +3,6 @@
 return [
     'title' => 'Dashboard',
 
-    'active_timer' => [
-        'label' => 'Currently running',
-        'stop' => 'Stop timer',
-    ],
-
     'stats' => [
         'outstanding' => 'Outstanding',
         'outstanding_sub' => 'across :count projects',

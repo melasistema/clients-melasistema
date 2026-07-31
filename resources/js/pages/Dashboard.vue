@@ -1,23 +1,11 @@
 <script setup lang="ts">
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useFormatters } from '@/composables/useFormatters';
 import { useTranslations } from '@/composables/useTranslations';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { Clock, TrendingUp, Wallet } from 'lucide-vue-next';
-import { onMounted, onUnmounted, ref } from 'vue';
-
-interface ActiveTimer {
-    client_id: number;
-    project_id: number;
-    task_id: number;
-    task_description: string;
-    project_name: string;
-    client_name: string;
-    timer_started_at: string;
-}
 
 interface AwaitingPayment {
     client_id: number;
@@ -35,7 +23,7 @@ interface RecentPayment {
     client_name: string;
 }
 
-const props = defineProps<{
+defineProps<{
     stats: {
         outstanding: number | string;
         outstanding_projects_count: number;
@@ -43,7 +31,6 @@ const props = defineProps<{
         received_all_time: number | string;
         tracked_seconds: number;
     };
-    active_timer: ActiveTimer | null;
     awaiting_payment: AwaitingPayment[];
     recent_payments: RecentPayment[];
 }>();
@@ -52,40 +39,6 @@ const { formatCurrency, formatDuration, formatDay } = useFormatters();
 const { __ } = useTranslations();
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: __('common.nav.dashboard'), href: '/dashboard' }];
-
-const form = useForm({});
-
-const stopTimer = () => {
-    if (!props.active_timer) {
-        return;
-    }
-
-    form.post(route('clients.projects.tasks.stopTimer', [props.active_timer.client_id, props.active_timer.project_id, props.active_timer.task_id]), {
-        preserveScroll: true,
-    });
-};
-
-// Live-ticking elapsed time for the running timer, driven off a 1s clock.
-const currentTime = ref(Date.now());
-let timerInterval: ReturnType<typeof setInterval> | undefined;
-
-onMounted(() => {
-    timerInterval = setInterval(() => {
-        currentTime.value = Date.now();
-    }, 1000);
-});
-
-onUnmounted(() => {
-    if (timerInterval) {
-        clearInterval(timerInterval);
-    }
-});
-
-const elapsed = (timestamp: string) => {
-    const startedAt = new Date(timestamp).getTime();
-
-    return formatDuration(Math.max(Math.floor((currentTime.value - startedAt) / 1000), 0));
-};
 </script>
 
 <template>
@@ -93,34 +46,6 @@ const elapsed = (timestamp: string) => {
 
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 overflow-x-auto p-4">
-            <!-- Active timer bar: only present while a task is running. -->
-            <div
-                v-if="active_timer"
-                class="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 dark:border-green-900 dark:bg-green-950/50"
-            >
-                <div class="flex items-center gap-3">
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75"></span>
-                        <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-600"></span>
-                    </span>
-                    <div class="text-sm">
-                        <span class="text-xs tracking-wide text-green-700 uppercase dark:text-green-400">{{
-                            __('dashboard.active_timer.label')
-                        }}</span>
-                        <div class="font-medium text-foreground">
-                            {{ active_timer.task_description }}
-                            <span class="text-muted-foreground">· {{ active_timer.project_name }} — {{ active_timer.client_name }}</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex items-center gap-3">
-                    <span class="font-mono text-lg font-semibold text-green-700 tabular-nums dark:text-green-400">{{
-                        elapsed(active_timer.timer_started_at)
-                    }}</span>
-                    <Button size="sm" :disabled="form.processing" @click="stopTimer">{{ __('dashboard.active_timer.stop') }}</Button>
-                </div>
-            </div>
-
             <!-- KPI cards. -->
             <div class="grid auto-rows-min gap-4 md:grid-cols-3">
                 <Card>

@@ -15,7 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->encryptCookies(except: ['appearance', 'sidebar_state']);
+        // `last_timer` holds the last-stopped task so the header timer bar can
+        // persist across navigation until dismissed — read server-side and shared
+        // by HandleInertiaRequests, so it stays plaintext like the other UI cookies.
+        $middleware->encryptCookies(except: ['appearance', 'sidebar_state', 'last_timer']);
 
         $middleware->alias([
             'registration.enabled' => EnsureRegistrationEnabled::class,
