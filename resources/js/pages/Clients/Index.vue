@@ -14,15 +14,17 @@ import {
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useFormatters } from '@/composables/useFormatters';
+import { useTranslations } from '@/composables/useTranslations';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 
 defineProps<{ clients: Client[] }>();
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Clients', href: '/clients' }];
-
 const { formatCurrency } = useFormatters();
+const { __ } = useTranslations();
+
+const breadcrumbs: BreadcrumbItem[] = [{ title: __('clients.title'), href: '/clients' }];
 
 const form = useForm({});
 
@@ -33,23 +35,23 @@ const deleteClient = (clientId: number) => {
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Head title="Clients" />
+        <Head :title="__('clients.title')" />
 
         <div class="px-4 py-6">
             <div class="flex items-start justify-between gap-4">
-                <Heading title="Clients" description="Your clients, their contact details and total earnings." />
-                <Link :href="route('clients.create')" :class="buttonVariants({ size: 'sm' })">Add client</Link>
+                <Heading :title="__('clients.title')" :description="__('clients.description')" />
+                <Link :href="route('clients.create')" :class="buttonVariants({ size: 'sm' })">{{ __('clients.add') }}</Link>
             </div>
 
             <div class="mt-6 rounded-xl border">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Company</TableHead>
-                            <TableHead>Contact</TableHead>
-                            <TableHead>VAT</TableHead>
-                            <TableHead>Total earnings</TableHead>
-                            <TableHead class="text-right">Actions</TableHead>
+                            <TableHead>{{ __('clients.table.company') }}</TableHead>
+                            <TableHead>{{ __('clients.table.contact') }}</TableHead>
+                            <TableHead>{{ __('clients.table.vat') }}</TableHead>
+                            <TableHead>{{ __('clients.table.earnings') }}</TableHead>
+                            <TableHead class="text-right">{{ __('common.actions') }}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -75,30 +77,31 @@ const deleteClient = (clientId: number) => {
                                         :href="route('clients.projects.index', client.id)"
                                         :class="buttonVariants({ variant: 'ghost', size: 'sm' })"
                                     >
-                                        Projects
+                                        {{ __('clients.projects') }}
                                     </Link>
                                     <Link :href="route('clients.edit', client.id)" :class="buttonVariants({ variant: 'outline', size: 'sm' })">
-                                        Edit
+                                        {{ __('common.edit') }}
                                     </Link>
                                     <AlertDialog>
                                         <AlertDialogTrigger as-child>
-                                            <Button variant="destructive" size="sm">Delete</Button>
+                                            <Button variant="destructive" size="sm">{{ __('common.delete') }}</Button>
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
                                             <AlertDialogHeader>
-                                                <AlertDialogTitle>Delete {{ client.company_name }}?</AlertDialogTitle>
+                                                <AlertDialogTitle>{{
+                                                    __('clients.delete.title', { company: client.company_name })
+                                                }}</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    This moves the client, with all of its projects and tasks, to the Trash. You can restore it from
-                                                    there, or delete it permanently later.
+                                                    {{ __('clients.delete.description') }}
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogCancel>{{ __('common.cancel') }}</AlertDialogCancel>
                                                 <AlertDialogAction
                                                     class="bg-destructive text-white hover:bg-destructive/90"
                                                     @click="deleteClient(client.id)"
                                                 >
-                                                    Delete
+                                                    {{ __('common.delete') }}
                                                 </AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
@@ -108,9 +111,9 @@ const deleteClient = (clientId: number) => {
                         </TableRow>
                         <TableRow v-if="clients.length === 0">
                             <TableCell colspan="5" class="py-10 text-center text-muted-foreground">
-                                No clients yet.
+                                {{ __('clients.empty') }}
                                 <Link :href="route('clients.create')" class="text-foreground underline underline-offset-4">
-                                    Add your first client </Link
+                                    {{ __('clients.empty_cta') }} </Link
                                 >.
                             </TableCell>
                         </TableRow>

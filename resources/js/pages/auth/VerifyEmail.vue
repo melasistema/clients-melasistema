@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import TextLink from '@/components/TextLink.vue';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from '@/composables/useTranslations';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { LoaderCircle } from 'lucide-vue-next';
@@ -8,6 +9,8 @@ import { LoaderCircle } from 'lucide-vue-next';
 defineProps<{
     status?: string;
 }>();
+
+const { __ } = useTranslations();
 
 const form = useForm({});
 
@@ -17,20 +20,20 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthLayout title="Verify email" description="Please verify your email address by clicking on the link we just emailed to you.">
-        <Head title="Email verification" />
+    <AuthLayout :title="__('auth.verify.title')" :description="__('auth.verify.description')">
+        <Head :title="__('auth.verify.head')" />
 
         <div v-if="status === 'verification-link-sent'" class="mb-4 text-center text-sm font-medium text-green-600">
-            A new verification link has been sent to the email address you provided during registration.
+            {{ __('auth.verify.sent') }}
         </div>
 
         <form @submit.prevent="submit" class="space-y-6 text-center">
             <Button :disabled="form.processing" variant="secondary">
                 <LoaderCircle v-if="form.processing" class="h-4 w-4 animate-spin" />
-                Resend verification email
+                {{ __('auth.verify.resend') }}
             </Button>
 
-            <TextLink :href="route('logout')" method="post" as="button" class="mx-auto block text-sm"> Log out </TextLink>
+            <TextLink :href="route('logout')" method="post" as="button" class="mx-auto block text-sm"> {{ __('auth.verify.logout') }} </TextLink>
         </form>
     </AuthLayout>
 </template>

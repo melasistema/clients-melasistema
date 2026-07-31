@@ -28,6 +28,9 @@ export type AppPageProps<T extends Record<string, unknown> = Record<string, unkn
     name: string;
     registrationEnabled: boolean;
     money: MoneyConfig;
+    // Active UI language + its lang/{locale}/*.php messages (see useTranslations).
+    locale: string;
+    translations: Record<string, unknown>;
     quote: { message: string; author: string };
     auth: Auth;
     ziggy: Config & { location: string };

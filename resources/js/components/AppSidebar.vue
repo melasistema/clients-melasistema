@@ -3,24 +3,27 @@ import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
 import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { useTranslations } from '@/composables/useTranslations';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
 import { BookOpen, Folder, LayoutGrid, Trash2 } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
+const { __ } = useTranslations();
+
 const mainNavItems: NavItem[] = [
     {
-        title: 'Dashboard',
+        title: __('common.nav.dashboard'),
         href: '/dashboard',
         icon: LayoutGrid,
     },
     {
-        title: 'Clients',
+        title: __('common.nav.clients'),
         href: '/clients',
         icon: Folder,
     },
     {
-        title: 'Trash',
+        title: __('common.nav.trash'),
         href: '/trash',
         icon: Trash2,
     },
@@ -28,12 +31,12 @@ const mainNavItems: NavItem[] = [
 
 const footerNavItems: NavItem[] = [
     {
-        title: 'Github Repo',
+        title: __('common.nav.github'),
         href: 'https://github.com/melasistema/clients-melasistema',
         icon: Folder,
     },
     {
-        title: 'Documentation',
+        title: __('common.nav.documentation'),
         href: 'https://github.com/melasistema/clients-melasistema#readme',
         icon: BookOpen,
     },

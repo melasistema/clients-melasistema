@@ -30,5 +30,10 @@ export function useFormatters() {
         return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
-    return { formatCurrency, formatDuration };
+    // A date/time, formatted for the configured locale (reuses the money locale,
+    // a full regional tag like it-IT / en-US). Empty string for a missing value.
+    const formatDate = (value: string | null | undefined): string =>
+        value ? new Intl.DateTimeFormat(page.props.money.locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : '';
+
+    return { formatCurrency, formatDuration, formatDate };
 }

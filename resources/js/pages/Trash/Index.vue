@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useFormatters } from '@/composables/useFormatters';
+import { useTranslations } from '@/composables/useTranslations';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/vue3';
@@ -43,7 +45,10 @@ const props = defineProps<{
     tasks: TrashedTask[];
 }>();
 
-const breadcrumbs: BreadcrumbItem[] = [{ title: 'Trash', href: '/trash' }];
+const { formatDate } = useFormatters();
+const { __ } = useTranslations();
+
+const breadcrumbs: BreadcrumbItem[] = [{ title: __('trash.title'), href: '/trash' }];
 
 const form = useForm({});
 
@@ -56,31 +61,28 @@ const purge = (name: string, id: number) => {
 };
 
 const isEmpty = () => props.clients.length === 0 && props.projects.length === 0 && props.tasks.length === 0;
-
-const formatDate = (value: string) =>
-    value ? new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : '';
 </script>
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Head title="Trash" />
+        <Head :title="__('trash.title')" />
 
         <div class="px-4 py-6">
-            <Heading title="Trash" description="Deleted items are kept here. Restore them, or delete permanently to purge for good." />
+            <Heading :title="__('trash.title')" :description="__('trash.description')" />
 
-            <div v-if="isEmpty()" class="mt-6 rounded-xl border py-16 text-center text-muted-foreground">Trash is empty.</div>
+            <div v-if="isEmpty()" class="mt-6 rounded-xl border py-16 text-center text-muted-foreground">{{ __('trash.empty') }}</div>
 
             <!-- Clients -->
             <section v-if="clients.length" class="mt-8">
-                <h2 class="mb-2 text-sm font-medium text-muted-foreground">Clients</h2>
+                <h2 class="mb-2 text-sm font-medium text-muted-foreground">{{ __('trash.sections.clients') }}</h2>
                 <div class="rounded-xl border">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Company</TableHead>
-                                <TableHead>Contact</TableHead>
-                                <TableHead>Deleted</TableHead>
-                                <TableHead class="text-right">Actions</TableHead>
+                                <TableHead>{{ __('trash.table.company') }}</TableHead>
+                                <TableHead>{{ __('trash.table.contact') }}</TableHead>
+                                <TableHead>{{ __('common.deleted') }}</TableHead>
+                                <TableHead class="text-right">{{ __('common.actions') }}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -90,25 +92,29 @@ const formatDate = (value: string) =>
                                 <TableCell class="text-muted-foreground">{{ formatDate(client.deleted_at) }}</TableCell>
                                 <TableCell>
                                     <div class="flex items-center justify-end gap-2">
-                                        <Button variant="outline" size="sm" @click="restore('clients.restore', client.id)">Restore</Button>
+                                        <Button variant="outline" size="sm" @click="restore('clients.restore', client.id)">{{
+                                            __('common.restore')
+                                        }}</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger as-child>
-                                                <Button variant="destructive" size="sm">Delete forever</Button>
+                                                <Button variant="destructive" size="sm">{{ __('trash.delete_forever') }}</Button>
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>Permanently delete {{ client.company_name }}?</AlertDialogTitle>
+                                                    <AlertDialogTitle>{{
+                                                        __('trash.purge.client_title', { name: client.company_name })
+                                                    }}</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        This erases the client and all of its projects and tasks for good. This cannot be undone.
+                                                        {{ __('trash.purge.client_description') }}
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogCancel>{{ __('common.cancel') }}</AlertDialogCancel>
                                                     <AlertDialogAction
                                                         class="bg-destructive text-white hover:bg-destructive/90"
                                                         @click="purge('clients.forceDelete', client.id)"
                                                     >
-                                                        Delete forever
+                                                        {{ __('trash.delete_forever') }}
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
@@ -123,15 +129,15 @@ const formatDate = (value: string) =>
 
             <!-- Projects -->
             <section v-if="projects.length" class="mt-8">
-                <h2 class="mb-2 text-sm font-medium text-muted-foreground">Projects</h2>
+                <h2 class="mb-2 text-sm font-medium text-muted-foreground">{{ __('trash.sections.projects') }}</h2>
                 <div class="rounded-xl border">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Project</TableHead>
-                                <TableHead>Client</TableHead>
-                                <TableHead>Deleted</TableHead>
-                                <TableHead class="text-right">Actions</TableHead>
+                                <TableHead>{{ __('trash.table.project') }}</TableHead>
+                                <TableHead>{{ __('trash.table.client') }}</TableHead>
+                                <TableHead>{{ __('common.deleted') }}</TableHead>
+                                <TableHead class="text-right">{{ __('common.actions') }}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -141,25 +147,27 @@ const formatDate = (value: string) =>
                                 <TableCell class="text-muted-foreground">{{ formatDate(project.deleted_at) }}</TableCell>
                                 <TableCell>
                                     <div class="flex items-center justify-end gap-2">
-                                        <Button variant="outline" size="sm" @click="restore('projects.restore', project.id)">Restore</Button>
+                                        <Button variant="outline" size="sm" @click="restore('projects.restore', project.id)">{{
+                                            __('common.restore')
+                                        }}</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger as-child>
-                                                <Button variant="destructive" size="sm">Delete forever</Button>
+                                                <Button variant="destructive" size="sm">{{ __('trash.delete_forever') }}</Button>
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>Permanently delete {{ project.name }}?</AlertDialogTitle>
+                                                    <AlertDialogTitle>{{ __('trash.purge.project_title', { name: project.name }) }}</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        This erases the project and all of its tasks for good. This cannot be undone.
+                                                        {{ __('trash.purge.project_description') }}
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogCancel>{{ __('common.cancel') }}</AlertDialogCancel>
                                                     <AlertDialogAction
                                                         class="bg-destructive text-white hover:bg-destructive/90"
                                                         @click="purge('projects.forceDelete', project.id)"
                                                     >
-                                                        Delete forever
+                                                        {{ __('trash.delete_forever') }}
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>
@@ -174,16 +182,16 @@ const formatDate = (value: string) =>
 
             <!-- Tasks -->
             <section v-if="tasks.length" class="mt-8">
-                <h2 class="mb-2 text-sm font-medium text-muted-foreground">Tasks</h2>
+                <h2 class="mb-2 text-sm font-medium text-muted-foreground">{{ __('trash.sections.tasks') }}</h2>
                 <div class="rounded-xl border">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Task</TableHead>
-                                <TableHead>Project</TableHead>
-                                <TableHead>Client</TableHead>
-                                <TableHead>Deleted</TableHead>
-                                <TableHead class="text-right">Actions</TableHead>
+                                <TableHead>{{ __('trash.table.task') }}</TableHead>
+                                <TableHead>{{ __('trash.table.project') }}</TableHead>
+                                <TableHead>{{ __('trash.table.client') }}</TableHead>
+                                <TableHead>{{ __('common.deleted') }}</TableHead>
+                                <TableHead class="text-right">{{ __('common.actions') }}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -194,25 +202,27 @@ const formatDate = (value: string) =>
                                 <TableCell class="text-muted-foreground">{{ formatDate(task.deleted_at) }}</TableCell>
                                 <TableCell>
                                     <div class="flex items-center justify-end gap-2">
-                                        <Button variant="outline" size="sm" @click="restore('tasks.restore', task.id)">Restore</Button>
+                                        <Button variant="outline" size="sm" @click="restore('tasks.restore', task.id)">{{
+                                            __('common.restore')
+                                        }}</Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger as-child>
-                                                <Button variant="destructive" size="sm">Delete forever</Button>
+                                                <Button variant="destructive" size="sm">{{ __('trash.delete_forever') }}</Button>
                                             </AlertDialogTrigger>
                                             <AlertDialogContent>
                                                 <AlertDialogHeader>
-                                                    <AlertDialogTitle>Permanently delete this task?</AlertDialogTitle>
+                                                    <AlertDialogTitle>{{ __('trash.purge.task_title') }}</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        This erases “{{ task.description }}” and its tracked time for good. This cannot be undone.
+                                                        {{ __('trash.purge.task_description', { description: task.description }) }}
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>
-                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                    <AlertDialogCancel>{{ __('common.cancel') }}</AlertDialogCancel>
                                                     <AlertDialogAction
                                                         class="bg-destructive text-white hover:bg-destructive/90"
                                                         @click="purge('tasks.forceDelete', task.id)"
                                                     >
-                                                        Delete forever
+                                                        {{ __('trash.delete_forever') }}
                                                     </AlertDialogAction>
                                                 </AlertDialogFooter>
                                             </AlertDialogContent>

@@ -5,12 +5,15 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslations } from '@/composables/useTranslations';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 
 const props = defineProps<{ client: Client; project: Project }>();
+
+const { __ } = useTranslations();
 
 const form = useForm({
     description: '',
@@ -44,38 +47,38 @@ const formattedTime = computed({
 });
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Clients', href: '/clients' },
-    { title: 'Projects', href: '/clients/' + props.client.id + '/projects' },
-    { title: 'Tasks', href: '/clients/' + props.client.id + '/projects/' + props.project.id + '/tasks' },
-    { title: 'Create', href: '/clients/' + props.client.id + '/projects/' + props.project.id + '/tasks/create' },
+    { title: __('clients.title'), href: '/clients' },
+    { title: __('projects.title'), href: '/clients/' + props.client.id + '/projects' },
+    { title: __('tasks.title'), href: '/clients/' + props.client.id + '/projects/' + props.project.id + '/tasks' },
+    { title: __('common.create'), href: '/clients/' + props.client.id + '/projects/' + props.project.id + '/tasks/create' },
 ];
 </script>
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Head title="Create task" />
+        <Head :title="__('tasks.form.create_title')" />
 
         <div class="px-4 py-6">
-            <Heading title="Create task" :description="`Add a new task for ${project.name}.`" />
+            <Heading :title="__('tasks.form.create_title')" :description="__('tasks.form.create_description', { project: project.name })" />
 
             <form class="mt-6 max-w-xl space-y-6" @submit.prevent="submit">
                 <div class="grid gap-2">
-                    <Label for="description">Description</Label>
+                    <Label for="description">{{ __('common.description') }}</Label>
                     <Textarea id="description" v-model="form.description" rows="3" />
                     <InputError :message="form.errors.description" />
                 </div>
 
                 <div class="grid gap-2">
-                    <Label for="total_seconds">Time (HH:MM:SS)</Label>
+                    <Label for="total_seconds">{{ __('tasks.form.time') }}</Label>
                     <Input id="total_seconds" v-model="formattedTime" type="text" placeholder="00:00:00" />
                     <InputError :message="form.errors.total_seconds" />
                 </div>
 
                 <div class="flex items-center justify-end gap-4">
                     <Link :href="route('clients.projects.tasks.index', [client.id, project.id])" :class="buttonVariants({ variant: 'ghost' })">
-                        Cancel
+                        {{ __('common.cancel') }}
                     </Link>
-                    <Button type="submit" :disabled="form.processing">Save</Button>
+                    <Button type="submit" :disabled="form.processing">{{ __('common.save') }}</Button>
                 </div>
             </form>
         </div>

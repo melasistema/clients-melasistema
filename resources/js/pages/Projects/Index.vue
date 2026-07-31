@@ -15,6 +15,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useFormatters } from '@/composables/useFormatters';
+import { useTranslations } from '@/composables/useTranslations';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/vue3';
@@ -23,10 +24,11 @@ import { computed, ref } from 'vue';
 const props = defineProps<{ client: Client; projects: Project[] }>();
 
 const { formatCurrency, formatDuration } = useFormatters();
+const { __ } = useTranslations();
 
 const breadcrumbs: BreadcrumbItem[] = [
-    { title: 'Clients', href: '/clients' },
-    { title: 'Projects', href: '/clients/' + props.client.id + '/projects' },
+    { title: __('clients.title'), href: '/clients' },
+    { title: __('projects.title'), href: '/clients/' + props.client.id + '/projects' },
 ];
 
 const form = useForm({});
@@ -51,11 +53,11 @@ const reopenProject = (projectId: number) => {
 const modeBadge = (project: Project) => {
     switch (project.billing_mode) {
         case 'fixed':
-            return { label: 'Fixed', class: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300' };
+            return { label: __('projects.billing.fixed'), class: 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300' };
         case 'non_billable':
-            return { label: 'Non-billable', class: 'bg-muted text-muted-foreground' };
+            return { label: __('projects.billing.non_billable'), class: 'bg-muted text-muted-foreground' };
         default:
-            return { label: 'Hourly', class: 'bg-muted text-muted-foreground' };
+            return { label: __('projects.billing.hourly'), class: 'bg-muted text-muted-foreground' };
     }
 };
 
@@ -66,40 +68,40 @@ const readyToComplete = (project: Project) =>
 
 const rateLabel = (project: Project) => {
     if (project.billing_mode === 'fixed') {
-        return `${formatCurrency(project.agreed_fee ?? 0)} fee`;
+        return __('projects.rate.fee', { amount: formatCurrency(project.agreed_fee ?? 0) });
     }
     if (project.billing_mode === 'non_billable') {
         return '—';
     }
-    return `${formatCurrency(project.hourly_rate)}/h`;
+    return __('projects.rate.hourly', { amount: formatCurrency(project.hourly_rate) });
 };
 </script>
 
 <template>
     <AppLayout :breadcrumbs="breadcrumbs">
-        <Head title="Projects" />
+        <Head :title="__('projects.title')" />
 
         <div class="px-4 py-6">
             <div class="flex items-start justify-between gap-4">
-                <Heading title="Projects" :description="`Projects for ${client.company_name}, their rates and earnings.`" />
-                <Link :href="route('clients.projects.create', client.id)" :class="buttonVariants({ size: 'sm' })">Add project</Link>
+                <Heading :title="__('projects.title')" :description="__('projects.index_description', { company: client.company_name })" />
+                <Link :href="route('clients.projects.create', client.id)" :class="buttonVariants({ size: 'sm' })">{{ __('projects.add') }}</Link>
             </div>
 
             <label v-if="completedCount > 0" class="mt-4 flex items-center gap-2 text-sm text-muted-foreground">
                 <Checkbox id="show-completed" v-model="showCompleted" />
-                Show completed ({{ completedCount }})
+                {{ __('projects.show_completed', { count: completedCount }) }}
             </label>
 
             <div class="mt-6 rounded-xl border">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Project</TableHead>
-                            <TableHead>Rate / fee</TableHead>
-                            <TableHead>Total time</TableHead>
-                            <TableHead>Earnings</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead class="text-right">Actions</TableHead>
+                            <TableHead>{{ __('projects.table.project') }}</TableHead>
+                            <TableHead>{{ __('projects.table.rate') }}</TableHead>
+                            <TableHead>{{ __('projects.table.time') }}</TableHead>
+                            <TableHead>{{ __('projects.table.earnings') }}</TableHead>
+                            <TableHead>{{ __('common.status') }}</TableHead>
+                            <TableHead class="text-right">{{ __('common.actions') }}</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -116,7 +118,7 @@ const rateLabel = (project: Project) => {
                                     v-if="project.billing_mode !== 'non_billable' && project.outstanding > 0"
                                     class="text-xs text-amber-600 dark:text-amber-500"
                                 >
-                                    {{ formatCurrency(project.outstanding) }} outstanding
+                                    {{ __('projects.outstanding', { amount: formatCurrency(project.outstanding) }) }}
                                 </div>
                             </TableCell>
                             <TableCell>
@@ -131,25 +133,25 @@ const rateLabel = (project: Project) => {
                                         v-if="project.is_completed"
                                         class="inline-flex items-center rounded-md bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300"
                                     >
-                                        Completed
+                                        {{ __('projects.badge.completed') }}
                                     </span>
                                     <span
                                         v-if="project.billing_mode !== 'non_billable' && project.is_fully_paid"
                                         class="inline-flex items-center rounded-md bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300"
                                     >
-                                        Paid
+                                        {{ __('projects.badge.paid') }}
                                     </span>
                                     <span
                                         v-else-if="project.billing_mode !== 'non_billable' && project.amount_paid > 0"
                                         class="inline-flex items-center rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300"
                                     >
-                                        Partial
+                                        {{ __('projects.badge.partial') }}
                                     </span>
                                     <span
                                         v-if="readyToComplete(project)"
                                         class="inline-flex items-center rounded-md bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300"
                                     >
-                                        Ready to complete
+                                        {{ __('projects.badge.ready') }}
                                     </span>
                                 </div>
                             </TableCell>
@@ -159,39 +161,38 @@ const rateLabel = (project: Project) => {
                                         :href="route('clients.projects.tasks.index', [client.id, project.id])"
                                         :class="buttonVariants({ variant: 'ghost', size: 'sm' })"
                                     >
-                                        Tasks
+                                        {{ __('common.tasks') }}
                                     </Link>
                                     <Link
                                         :href="route('clients.projects.edit', [client.id, project.id])"
                                         :class="buttonVariants({ variant: 'outline', size: 'sm' })"
                                     >
-                                        Edit
+                                        {{ __('common.edit') }}
                                     </Link>
                                     <Button v-if="!project.is_completed" variant="secondary" size="sm" @click="completeProject(project.id)">
-                                        Complete
+                                        {{ __('common.complete') }}
                                     </Button>
                                     <Button v-else-if="!project.is_fully_paid" variant="ghost" size="sm" @click="reopenProject(project.id)">
-                                        Reopen
+                                        {{ __('common.reopen') }}
                                     </Button>
                                     <AlertDialog>
                                         <AlertDialogTrigger as-child>
-                                            <Button variant="destructive" size="sm">Delete</Button>
+                                            <Button variant="destructive" size="sm">{{ __('common.delete') }}</Button>
                                         </AlertDialogTrigger>
                                         <AlertDialogContent>
                                             <AlertDialogHeader>
-                                                <AlertDialogTitle>Delete {{ project.name }}?</AlertDialogTitle>
+                                                <AlertDialogTitle>{{ __('projects.delete.title', { name: project.name }) }}</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    This moves the project, with all of its tasks, to the Trash. You can restore it from there, or
-                                                    delete it permanently later.
+                                                    {{ __('projects.delete.description') }}
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>
-                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogCancel>{{ __('common.cancel') }}</AlertDialogCancel>
                                                 <AlertDialogAction
                                                     class="bg-destructive text-white hover:bg-destructive/90"
                                                     @click="deleteProject(project.id)"
                                                 >
-                                                    Delete
+                                                    {{ __('common.delete') }}
                                                 </AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
@@ -202,12 +203,12 @@ const rateLabel = (project: Project) => {
                         <TableRow v-if="visibleProjects.length === 0">
                             <TableCell colspan="6" class="py-10 text-center text-muted-foreground">
                                 <template v-if="projects.length === 0">
-                                    No projects yet.
+                                    {{ __('projects.empty') }}
                                     <Link :href="route('clients.projects.create', client.id)" class="text-foreground underline underline-offset-4">
-                                        Add the first project </Link
+                                        {{ __('projects.empty_cta') }} </Link
                                     >.
                                 </template>
-                                <template v-else> All projects are completed. Tick “Show completed” to see them. </template>
+                                <template v-else> {{ __('projects.all_completed') }} </template>
                             </TableCell>
                         </TableRow>
                     </TableBody>
