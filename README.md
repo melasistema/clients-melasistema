@@ -9,6 +9,7 @@ A freelance time-tracking application built with Laravel 12 and Vue.js, featurin
 - Task Management
 - Hourly Rate Tracking per Project
 - Payment Tracking for Projects
+- Multilingual UI (English & Italian) with a configurable currency
 
 ## Setup
 
@@ -69,6 +70,59 @@ REGISTRATION_ENABLED=true
 
 That opens the `/register` routes and shows a "Sign up" link on the login page.
 Leave it unset (or `false`) to keep the app single-user.
+
+## Language & currency
+
+The entire interface is translated and driven by config, so a self-hoster
+switches language and currency in `.env` without touching any Vue or PHP code.
+
+### Language
+
+Set the active language with the standard Laravel locale knob:
+
+```dotenv
+APP_LOCALE=it          # 'en' (default) or 'it'
+APP_FALLBACK_LOCALE=en # used for any string missing in the active locale
+```
+
+**English** and **Italian** ship complete. Every user-facing string — the
+clients/projects/tasks pages, the app sidebar and menus, all settings pages,
+and the full authentication flow (login, registration, password reset, email
+verification) — reads through the translation layer; there are no hardcoded
+English strings in the app UI.
+
+How it works:
+
+- Copy lives in Laravel PHP lang files under `lang/{locale}/`, split by area
+  (`common.php`, `clients.php`, `projects.php`, `tasks.php`, `trash.php`,
+  `settings.php`, `auth.php`).
+- The active locale's messages are shared to the frontend on every request and
+  **deep-merged over the fallback locale**, so a key missing in Italian falls
+  back to the English text — never a raw key.
+- Vue components read them via a `useTranslations()` composable that mirrors
+  Laravel's `__()`: `__('clients.title')`, with `:placeholder` substitution.
+
+**Adding a language:** create a `lang/{code}/` directory (e.g. `lang/fr/`),
+copy the files from `lang/en/`, translate the values, then set
+`APP_LOCALE={code}`. Any untranslated key automatically falls back to English.
+
+### Currency & number formatting
+
+Currency and number/locale formatting are independent of the UI language:
+
+```dotenv
+MONEY_CURRENCY=EUR   # ISO 4217 currency code (default: EUR)
+MONEY_LOCALE=it-IT   # Intl locale for number/currency formatting (default: it-IT)
+```
+
+These feed a shared money config that the frontend formatter reads, so amounts
+and tracked time are rendered consistently across every page.
+
+After changing any of these values, re-cache config:
+
+```bash
+php artisan config:clear   # or: php artisan config:cache
+```
 
 ## Usage
 
