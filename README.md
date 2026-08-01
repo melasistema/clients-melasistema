@@ -107,8 +107,8 @@ ways to run it — pick one.
 Best if you have Docker and want the same MySQL setup used in production.
 
 ```bash
-git clone melasistema/clients-melasistema
-cd clients-melasistema
+git clone https://github.com/melasistema/melafreelance.git
+cd melafreelance
 cp .env.example .env
 
 ./vendor/bin/sail up -d                 # start the containers
@@ -127,8 +127,8 @@ Best for trying it out quickly — the default `.env` uses a file-based SQLite
 database, so there's nothing else to install.
 
 ```bash
-git clone melasistema/clients-melasistema
-cd clients-melasistema
+git clone https://github.com/melasistema/melafreelance.git
+cd melafreelance
 cp .env.example .env
 
 composer install
