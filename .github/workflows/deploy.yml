@@ -1,0 +1,166 @@
+# Deployment (CD) — the repo OWNER's personal deploy. NOT required to run the app.
+#
+# If you cloned MelaFreelance and deploy some other way, just delete this file;
+# CI (ci.yml) keeps working on its own. Nothing about the target server is
+# hardcoded here — it all comes from repo Variables/Secrets, so this file is safe
+# to keep in a public repo and generic enough for anyone to reuse.
+#
+#   Settings -> Secrets and variables -> Actions
+#     Variables:
+#       DEPLOY_PATH        Absolute path to the app dir on the server,
+#                          e.g. /var/www/example.com
+#     Secrets:
+#       SSH_HOST           Server hostname or IP
+#       SSH_USER           SSH username
+#       SSH_KEY            SSH private key (PEM)
+#       MAINTENANCE_TOKEN  Token to bypass the maintenance page during deploy
+#
+# Bind this to a protected GitHub Environment named "production" (Settings ->
+# Environments) to require reviewers / a wait timer before a deploy runs, and to
+# scope the secrets to that environment.
+#
+# It runs only after CI *succeeds on a push to master*, and reuses the exact
+# public/build that CI built and tested (downloaded from that run) — no rebuild,
+# so the deployed build is the tested build.
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [master]
+
+# Least privilege: read the repo, and read the triggering CI run's artifacts.
+# No write scope anywhere.
+permissions:
+  contents: read
+  actions: read
+
+# Serialize deploys and never cancel one mid-flight.
+concurrency:
+  group: production-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    environment: production
+    # Hard gate: only ship a green master *push*. workflow_run also fires for
+    # fork-PR CI runs, but their event ('pull_request') and head_branch never
+    # match, so a stranger's PR can never trigger a deploy — and PRs never carry
+    # these secrets anyway.
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_branch == 'master'
+    env:
+      DEPLOY_PATH: ${{ vars.DEPLOY_PATH }}
+      MAINTENANCE_TOKEN: ${{ secrets.MAINTENANCE_TOKEN }}
+    steps:
+      - name: Fail fast if config is missing
+        run: |
+          test -n "${DEPLOY_PATH}" || {
+            echo "ERROR: the DEPLOY_PATH repository variable is not set." >&2
+            echo "Set it under Settings -> Secrets and variables -> Actions -> Variables." >&2
+            exit 1
+          }
+
+      - name: Checkout the tested commit
+        uses: actions/checkout@v4
+        with:
+          # The exact commit CI built and tested — not whatever master is now.
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, redis
+
+      - name: Install Composer dependencies
+        # Production-only dependencies.
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Download the tested build assets
+        # Pull the exact public/build produced by the CI run that triggered us,
+        # rather than rebuilding. Needs `actions: read` + run-id + token.
+        uses: actions/download-artifact@v4
+        with:
+          name: build-assets
+          path: public/build
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trim files not needed on the server
+        run: rm -rf .git .gitignore node_modules
+
+      - name: Deploy with SCP
+        # Copies the built codebase (source + vendor + public/build) to the server.
+        # Pinned to a commit SHA (not @master) because this action receives the
+        # SSH key — a mutable ref would let an upstream compromise exfiltrate it.
+        uses: appleboy/scp-action@ff85246acaad7bdce478db94a363cd2bf7c90345 # v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "./*"
+          target: ${{ vars.DEPLOY_PATH }}
+
+      - name: Run post-deployment commands on server
+        # SHA-pinned for the same reason as scp-action above.
+        uses: appleboy/ssh-action@0ff4204d59e8e51228ff73bce53f80d53301dee2 # v1.2.5
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          # Forward these into the remote shell as env vars instead of
+          # interpolating their values into the script text.
+          envs: DEPLOY_PATH,MAINTENANCE_TOKEN
+          script: |
+            # Fail loudly: abort on the first error instead of running to the final
+            # echo and reporting a green deploy while migrations silently failed.
+            set -euo pipefail
+
+            # Navigate to the application directory (from the DEPLOY_PATH variable).
+            cd "$DEPLOY_PATH"
+
+            # The vendor/ built in CI needs PHP >= 8.4.1 (Symfony 7.4 components),
+            # and production's web SAPI is 8.4 — but this host's DEFAULT CLI `php`
+            # is 8.3, which the vendor platform check rejects, so every `php artisan`
+            # below would die. Resolve an explicit 8.4 CLI binary; if none is found,
+            # exit non-zero (the deploy fails visibly) rather than masking it.
+            PHP="$(command -v php8.4 || command -v php-8.4 || command -v php84 || true)"
+            if [ -z "$PHP" ]; then
+              echo "ERROR: no PHP 8.4 CLI binary found (tried php8.4, php-8.4, php84)." >&2
+              echo "Set PHP to the correct 8.4 binary/path for this host and redeploy." >&2
+              exit 1
+            fi
+            echo "Using PHP CLI: $PHP"
+            "$PHP" -v
+
+            # Place the site in maintenance mode to prevent issues during migrations.
+            # A secret token can be used to bypass the maintenance page if needed.
+            # With set -e, a failed migration leaves the site in maintenance (safe)
+            # rather than bringing a broken build back up.
+            "$PHP" artisan down --secret="$MAINTENANCE_TOKEN"
+
+            # Run database migrations
+            "$PHP" artisan migrate --force
+
+            # Create the symbolic link
+            "$PHP" artisan storage:link
+
+            # Optimize the application and clear caches
+            "$PHP" artisan config:cache
+            "$PHP" artisan route:cache
+            "$PHP" artisan view:cache
+            "$PHP" artisan event:cache
+
+            # Restart any queue workers (e.g., Laravel Horizon)
+            # sudo supervisorctl restart laravel-worker:*
+
+            # Bring the site back up
+            "$PHP" artisan up
+
+            echo "Deployment completed successfully!"

@@ -1,11 +1,13 @@
-# Single CI/CD pipeline: lint -> test -> deploy, all pinned to one commit.
+# Continuous integration: lint -> test on every push/PR to development or master.
 #
-# On every push/PR to development or master, lint and test run. The deploy job
-# only runs on a push to master AND only after lint + test succeed (needs:), so
-# the commit that ships is exactly the commit that passed. Assets are built once
-# in the test job and handed to deploy as an artifact — the tested build is the
-# deployed build.
-name: CI/CD
+# This workflow is deliberately GENERIC — anyone who clones MelaFreelance gets a
+# working lint + test pipeline with nothing personal in it. Deployment lives in a
+# separate workflow (deploy.yml) you configure with your own server details; a
+# cloner who deploys differently can delete deploy.yml and keep this file as-is.
+#
+# The build artifact produced by the `test` job is what deploy.yml ships, so the
+# tested build is the deployed build.
+name: CI
 
 on:
   push:
@@ -106,103 +108,3 @@ jobs:
           path: public/build
           retention-days: 1
           if-no-files-found: error
-
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    # Hard gate: only ship a green master commit.
-    needs: [lint, test]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-    environment: production
-    # Serialize deploys and never cancel one mid-flight.
-    concurrency:
-      group: production-deploy
-      cancel-in-progress: false
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          extensions: mbstring, xml, ctype, iconv, intl, pdo_mysql, bcmath, redis
-
-      - name: Install Composer dependencies
-        # Production-only dependencies.
-        run: composer install --no-dev --optimize-autoloader
-
-      - name: Download build assets
-        # Reuse the exact assets built and tested in the `test` job — no rebuild.
-        uses: actions/download-artifact@v4
-        with:
-          name: build-assets
-          path: public/build
-
-      - name: Trim files not needed on the server
-        run: rm -rf .git .gitignore node_modules
-
-      - name: Deploy with SCP
-        # Copies the built codebase (source + vendor + public/build) to the server.
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          source: "./*"
-          target: "/www/htdocs/w01c7e90/clients.melasistema.com"
-
-      - name: Run post-deployment commands on server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            # Fail loudly: abort on the first error instead of running to the final
-            # echo and reporting a green deploy while migrations silently failed.
-            set -euo pipefail
-
-            # Navigate to the application directory using the real path
-            cd /www/htdocs/w01c7e90/clients.melasistema.com
-
-            # The vendor/ built in CI needs PHP >= 8.4.1 (Symfony 7.4 components),
-            # and production's web SAPI is 8.4 — but this host's DEFAULT CLI `php`
-            # is 8.3, which the vendor platform check rejects, so every `php artisan`
-            # below would die. Resolve an explicit 8.4 CLI binary; if none is found,
-            # exit non-zero (the deploy fails visibly) rather than masking it.
-            PHP="$(command -v php8.4 || command -v php-8.4 || command -v php84 || true)"
-            if [ -z "$PHP" ]; then
-              echo "ERROR: no PHP 8.4 CLI binary found (tried php8.4, php-8.4, php84)." >&2
-              echo "Set PHP to the correct 8.4 binary/path for this host and redeploy." >&2
-              exit 1
-            fi
-            echo "Using PHP CLI: $PHP"
-            "$PHP" -v
-
-            # Place the site in maintenance mode to prevent issues during migrations.
-            # A secret token can be used to bypass the maintenance page if needed.
-            # With set -e, a failed migration leaves the site in maintenance (safe)
-            # rather than bringing a broken build back up.
-            "$PHP" artisan down --secret='${{ secrets.MAINTENANCE_TOKEN }}'
-
-            # Run database migrations
-            "$PHP" artisan migrate --force
-
-            # Create the symbolic link
-            "$PHP" artisan storage:link
-
-            # Optimize the application and clear caches
-            "$PHP" artisan config:cache
-            "$PHP" artisan route:cache
-            "$PHP" artisan view:cache
-            "$PHP" artisan event:cache
-
-            # Restart any queue workers (e.g., Laravel Horizon)
-            # sudo supervisorctl restart laravel-worker:*
-
-            # Bring the site back up
-            "$PHP" artisan up
-
-            echo "Deployment completed successfully!"
