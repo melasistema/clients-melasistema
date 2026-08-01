@@ -1,6 +1,6 @@
 {
     "name": "melafreelance",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "MelaFreelance — a self-hosted freelance time-tracking app.",
     "private": true,
     "type": "module",
