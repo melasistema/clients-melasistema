@@ -30,4 +30,5 @@ git push origin $PRODUCTION_BRANCH
 git push --tags
 
 echo "--- Release Process Complete! ---"
-echo "A new tag has been pushed to GitHub, which will trigger the CI/CD pipeline."
+echo "The push to $PRODUCTION_BRANCH runs the CI workflow (lint + test); on success"
+echo "it chains into the Deploy workflow (workflow_run). Watch both in the Actions tab."
