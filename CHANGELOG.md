@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.4.0](https://github.com/melasistema/clients-melasistema/compare/v1.3.4...v1.4.0) (2026-08-01)
+
+
+### Features
+
+* **security:** add headers & env hardening, patch and de-cruft deps ([43690b6](https://github.com/melasistema/clients-melasistema/commit/43690b6544f085c28a4936034917bad9c476c0dc))
+
 ### [1.3.4](https://github.com/melasistema/clients-melasistema/compare/v1.3.3...v1.3.4) (2026-08-01)
 
 ### [1.3.3](https://github.com/melasistema/clients-melasistema/compare/v1.3.2...v1.3.3) (2026-08-01)
