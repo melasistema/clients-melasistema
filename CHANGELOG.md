@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.6.0](https://github.com/melasistema/clients-melasistema/compare/v1.5.0...v1.6.0) (2026-08-02)
+
+
+### Features
+
+* **report:** time report of tracked hours and billable value by day and project ([ed59f4e](https://github.com/melasistema/clients-melasistema/commit/ed59f4e679f927d952dcb2ab4bef0f05a2d1933d))
+* **time-tracking:** dated time-entries ledger for banked work sessions ([e65fab8](https://github.com/melasistema/clients-melasistema/commit/e65fab83563b699043f26c549b061aea6e250df3))
+
 ## [1.5.0](https://github.com/melasistema/clients-melasistema/compare/v1.4.0...v1.5.0) (2026-08-01)
 
 
