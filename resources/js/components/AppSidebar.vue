@@ -6,7 +6,7 @@ import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, Sid
 import { useTranslations } from '@/composables/useTranslations';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Trash2 } from 'lucide-vue-next';
+import { BarChart3, BookOpen, Folder, LayoutGrid, Trash2 } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const { __ } = useTranslations();
@@ -21,6 +21,11 @@ const mainNavItems: NavItem[] = [
         title: __('common.nav.clients'),
         href: '/clients',
         icon: Folder,
+    },
+    {
+        title: __('common.nav.report'),
+        href: '/report',
+        icon: BarChart3,
     },
     {
         title: __('common.nav.trash'),

@@ -34,6 +34,7 @@ return [
     'nav' => [
         'dashboard' => 'Dashboard',
         'clients' => 'Clients',
+        'report' => 'Report',
         'trash' => 'Trash',
         'github' => 'GitHub Repo',
         'documentation' => 'Documentation',

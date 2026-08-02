@@ -4,6 +4,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TrashController;
 use Illuminate\Support\Facades\Route;
@@ -16,6 +17,12 @@ Route::get('/', function () {
 Route::get('dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
+
+// The time report: tracked hours + billable value windowed over a period,
+// broken down by day and by project. Reads the dated time_entries ledger.
+Route::get('report', [ReportController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('report');
 
 // The domain hierarchy (Client -> Project -> Task). `scoped()` enforces the URL
 // nesting at the routing layer: a project must belong to the client in the URL,
