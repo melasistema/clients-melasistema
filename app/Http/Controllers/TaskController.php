@@ -154,17 +154,7 @@ class TaskController extends Controller
     {
         $this->authorize('update', $task);
 
-        // Carbon 3's diffInSeconds returns a float (fractional seconds); cast so
-        // total_seconds stays a whole-second integer (the DB column is, and the
-        // last_timer cookie is read back raw).
-        $secondsToAdd = (int) $task->timer_started_at->diffInSeconds(now());
-        $newTotalSeconds = $task->total_seconds + $secondsToAdd;
-
-        $task->update([
-            'is_running' => false,
-            'timer_started_at' => null,
-            'total_seconds' => $newTotalSeconds,
-        ]);
+        $newTotalSeconds = $this->bankTimer($task);
 
         Cookie::queue('last_timer', json_encode([
             'client_id' => $client->id,
@@ -191,21 +181,58 @@ class TaskController extends Controller
     /**
      * Stop every running timer owned by the given user (optionally excluding one
      * task), banking each one's elapsed seconds. Backs the single-timer invariant.
+     * Eager-loads `project` so bankTimer's rate snapshot doesn't N+1 across the loop.
      */
     private function stopRunningTimers(int $userId, ?int $exceptTaskId = null): void
     {
-        $running = Task::whereHas('project.client', fn ($query) => $query->where('user_id', $userId))
+        $running = Task::with('project')
+            ->whereHas('project.client', fn ($query) => $query->where('user_id', $userId))
             ->where('is_running', true)
             ->when($exceptTaskId, fn ($query) => $query->where('id', '!=', $exceptTaskId))
             ->get();
 
         foreach ($running as $task) {
-            $task->update([
-                'is_running' => false,
-                'timer_started_at' => null,
-                'total_seconds' => $task->total_seconds + (int) $task->timer_started_at->diffInSeconds(now()),
+            $this->bankTimer($task);
+        }
+    }
+
+    /**
+     * Bank a running task's elapsed time: clear the running flag, add the seconds to
+     * the cached `total_seconds`, and record the session as one dated `time_entries`
+     * row with the project's rate snapshotted. The single place a session is ever
+     * banked (stop / switch / complete all route through here), so exactly one entry
+     * is written per session and `total_seconds` always equals the sum of entries
+     * accrued since the feature shipped. Returns the new `total_seconds`.
+     *
+     * A zero-second session (start then immediate stop) is banked but writes no
+     * entry — it is noise, and adding zero keeps the running total correct.
+     */
+    private function bankTimer(Task $task): int
+    {
+        // Carbon 3's diffInSeconds returns a float (fractional seconds); cast so
+        // total_seconds stays a whole-second integer (the DB column is, and the
+        // last_timer cookie is read back raw).
+        $startedAt = $task->timer_started_at;
+        $endedAt = now();
+        $secondsToAdd = (int) $startedAt->diffInSeconds($endedAt);
+        $newTotalSeconds = $task->total_seconds + $secondsToAdd;
+
+        $task->update([
+            'is_running' => false,
+            'timer_started_at' => null,
+            'total_seconds' => $newTotalSeconds,
+        ]);
+
+        if ($secondsToAdd > 0) {
+            $task->timeEntries()->create([
+                'started_at' => $startedAt,
+                'ended_at' => $endedAt,
+                'seconds' => $secondsToAdd,
+                'hourly_rate' => $task->project->hourly_rate,
             ]);
         }
+
+        return $newTotalSeconds;
     }
 
     /**
@@ -216,15 +243,13 @@ class TaskController extends Controller
     {
         $this->authorize('update', $task);
 
-        $attributes = ['completed_at' => now()];
-
+        // A completed task can't still be accruing time: bank the running session
+        // first (which also records its time entry), then stamp completion.
         if ($task->is_running) {
-            $attributes['is_running'] = false;
-            $attributes['total_seconds'] = $task->total_seconds + (int) $task->timer_started_at->diffInSeconds(now());
-            $attributes['timer_started_at'] = null;
+            $this->bankTimer($task);
         }
 
-        $task->update($attributes);
+        $task->update(['completed_at' => now()]);
 
         return redirect()->back();
     }
