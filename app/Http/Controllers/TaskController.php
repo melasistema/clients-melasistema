@@ -7,9 +7,9 @@ use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\Task;
+use App\Services\TimerService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cookie;
-use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -123,21 +123,14 @@ class TaskController extends Controller
     /**
      * Start (or switch to) this task's timer. A freelancer can only work one task
      * at a time, so this enforces a single running timer: any other running task of
-     * the owner is stopped first — banking its elapsed seconds — in one transaction.
-     * Also forgets the "last stopped" bar, since a timer is now running.
+     * the owner is stopped first — banking its elapsed seconds — in one transaction
+     * (see TimerService). Also forgets the "last stopped" bar, since a timer runs now.
      */
-    public function startTimer(Client $client, Project $project, Task $task): RedirectResponse
+    public function startTimer(TimerService $timers, Client $client, Project $project, Task $task): RedirectResponse
     {
         $this->authorize('update', $task);
 
-        DB::transaction(function () use ($client, $task) {
-            $this->stopRunningTimers($client->user_id, exceptTaskId: $task->id);
-
-            $task->update([
-                'is_running' => true,
-                'timer_started_at' => now(),
-            ]);
-        });
+        $timers->start($task, $client->user_id);
 
         Cookie::queue(Cookie::forget('last_timer'));
 
@@ -150,11 +143,11 @@ class TaskController extends Controller
      * were working on (clickable, resumable) until you dismiss it — even across page
      * navigations.
      */
-    public function stopTimer(Client $client, Project $project, Task $task): RedirectResponse
+    public function stopTimer(TimerService $timers, Client $client, Project $project, Task $task): RedirectResponse
     {
         $this->authorize('update', $task);
 
-        $newTotalSeconds = $this->bankTimer($task);
+        $newTotalSeconds = $timers->stop($task);
 
         Cookie::queue('last_timer', json_encode([
             'client_id' => $client->id,
@@ -179,74 +172,17 @@ class TaskController extends Controller
     }
 
     /**
-     * Stop every running timer owned by the given user (optionally excluding one
-     * task), banking each one's elapsed seconds. Backs the single-timer invariant.
-     * Eager-loads `project` so bankTimer's rate snapshot doesn't N+1 across the loop.
-     */
-    private function stopRunningTimers(int $userId, ?int $exceptTaskId = null): void
-    {
-        $running = Task::with('project')
-            ->whereHas('project.client', fn ($query) => $query->where('user_id', $userId))
-            ->where('is_running', true)
-            ->when($exceptTaskId, fn ($query) => $query->where('id', '!=', $exceptTaskId))
-            ->get();
-
-        foreach ($running as $task) {
-            $this->bankTimer($task);
-        }
-    }
-
-    /**
-     * Bank a running task's elapsed time: clear the running flag, add the seconds to
-     * the cached `total_seconds`, and record the session as one dated `time_entries`
-     * row with the project's rate snapshotted. The single place a session is ever
-     * banked (stop / switch / complete all route through here), so exactly one entry
-     * is written per session and `total_seconds` always equals the sum of entries
-     * accrued since the feature shipped. Returns the new `total_seconds`.
-     *
-     * A zero-second session (start then immediate stop) is banked but writes no
-     * entry — it is noise, and adding zero keeps the running total correct.
-     */
-    private function bankTimer(Task $task): int
-    {
-        // Carbon 3's diffInSeconds returns a float (fractional seconds); cast so
-        // total_seconds stays a whole-second integer (the DB column is, and the
-        // last_timer cookie is read back raw).
-        $startedAt = $task->timer_started_at;
-        $endedAt = now();
-        $secondsToAdd = (int) $startedAt->diffInSeconds($endedAt);
-        $newTotalSeconds = $task->total_seconds + $secondsToAdd;
-
-        $task->update([
-            'is_running' => false,
-            'timer_started_at' => null,
-            'total_seconds' => $newTotalSeconds,
-        ]);
-
-        if ($secondsToAdd > 0) {
-            $task->timeEntries()->create([
-                'started_at' => $startedAt,
-                'ended_at' => $endedAt,
-                'seconds' => $secondsToAdd,
-                'hourly_rate' => $task->project->hourly_rate,
-            ]);
-        }
-
-        return $newTotalSeconds;
-    }
-
-    /**
      * Mark a task done. A completed task can't still be accruing time, so a
      * running timer is stopped first (banking the elapsed seconds).
      */
-    public function complete(Client $client, Project $project, Task $task): RedirectResponse
+    public function complete(TimerService $timers, Client $client, Project $project, Task $task): RedirectResponse
     {
         $this->authorize('update', $task);
 
         // A completed task can't still be accruing time: bank the running session
         // first (which also records its time entry), then stamp completion.
         if ($task->is_running) {
-            $this->bankTimer($task);
+            $timers->bank($task);
         }
 
         $task->update(['completed_at' => now()]);

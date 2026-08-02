@@ -98,8 +98,11 @@ jobs:
       - name: Build Assets
         run: npm run build
 
+      # Run with coverage (xdebug is provisioned above) and enforce a floor, so a
+      # change that drops test coverage fails CI. The suite currently sits at ~88%;
+      # 85 leaves headroom without letting coverage silently erode.
       - name: Tests
-        run: ./vendor/bin/pest
+        run: ./vendor/bin/pest --coverage --min=85
 
       - name: Upload build assets
         uses: actions/upload-artifact@v4
