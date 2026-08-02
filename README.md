@@ -88,6 +88,22 @@ The landing page is your at-a-glance overview:
   for.
 - **Recent payments** — your latest income, at a glance.
 
+### Reports: where your hours went
+
+The dashboard shows your all-time totals; the **Report** page answers the other
+question — *when* did I do the work. Every timed session is logged with its own
+date, so you can pick a period and see it broken down:
+
+- **This month, last month, this year, or all time** — one click to switch.
+- **Day by day** — how many hours (and how much they're worth) you put in on
+  each day of the period.
+- **By project** — the same hours split across the projects you worked on, so
+  you can see where your time actually went.
+
+Each session is valued at the rate that was in effect **when you worked it**, so
+raising a project's rate later never quietly rewrites what past work was worth.
+This is also the clean, dated record a future invoicing tool would read.
+
 ### Trash & recovery
 
 Deleting a client, project, or task doesn't destroy it — it moves to **Trash**,
