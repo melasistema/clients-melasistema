@@ -8,8 +8,13 @@ the projects you do for them, and the tasks you work on — the app times your
 work, computes what each project earns, and tracks who has paid you.
 
 It runs as your own private app (single-user by default), built on Laravel 12 +
-Vue 3. There's no account to sign up for and no data leaving your server — you
-host it, you own it.
+Inertia 2 + Vue 3 + TypeScript + Tailwind 4. There's no account to sign up for
+and no data leaving your server — you host it, you own it.
+
+<p align="center">
+  <img src="assets/screenshots/01-Dashboard-MelaFreelance.png" width="900"
+       alt="MelaFreelance dashboard: Outstanding, Received this month and Hours tracked KPI cards above an Awaiting-payment panel and a Recent-payments feed, with the always-on running-timer bar in the header." />
+</p>
 
 ---
 
@@ -26,6 +31,11 @@ flows:
 - **Tasks** — the individual things you do on a project. Tasks are what you put
   the timer on and where your hours accumulate.
 
+Each client carries their contact and VAT details and rolls up their total
+earnings — including a non-billable client like *Myself* for personal work.
+
+![The Clients list — company, contact, VAT number and total earnings per client, with a non-billable "Myself" client sitting at 0,00 €.](assets/screenshots/02-clients-melafreelance.png)
+
 ### Three ways a project earns — pick per project
 
 You don't set a "project type"; the app figures out how a project bills from
@@ -38,7 +48,10 @@ what you fill in:
 | Neither (rate left at 0) | **Non-billable** | Nothing. For personal work you still want to time — the money UI drops away and hours become the headline. |
 
 Because it's derived, you can start a project hourly and later agree a fixed fee
-just by filling the fee in — no migration, no re-typing.
+just by filling the fee in — no migration, no re-typing. Each project shows its
+mode, tracked time, earnings and payment status at a glance.
+
+![The Projects list for a client — each row shows its rate or fixed fee, total tracked time, earnings, and Fixed/Hourly plus Completed/Paid status badges, with an outstanding amount highlighted.](assets/screenshots/03-projects-melafreelance.png)
 
 ### The always-on timer
 
@@ -53,6 +66,8 @@ ticking.
   last task you worked — with a **Resume** button and a link straight to that
   task — until you dismiss it. Change pages all you like; you won't lose your
   place.
+
+![The Tasks list for a project — one task timing live (green "Running" clock) with a Stop button, another stopped, each row showing total time, task earnings, and Start/Stop, Complete and Edit actions.](assets/screenshots/04-tasks-melafreelance.png)
 
 ### Payments: a ledger, not a checkbox
 
@@ -103,6 +118,8 @@ date, so you can pick a period and see it broken down:
 Each session is valued at the rate that was in effect **when you worked it**, so
 raising a project's rate later never quietly rewrites what past work was worth.
 This is also the clean, dated record a future invoicing tool would read.
+
+![The Report page — This month / Last month / This year / All time period tabs above Hours tracked, Billable value and Days worked KPI cards, and a day-by-day breakdown alongside a by-project breakdown, each with proportional bars.](assets/screenshots/05-report-melafreelance.png)
 
 ### Trash & recovery
 
