@@ -9,6 +9,7 @@ return [
     'nudge' => 'Tutte le attività sono complete — segnare il progetto come concluso?',
     'mark_complete' => 'Segna progetto come completato',
     'table' => [
+        'title' => 'Attività',
         'time' => 'Tempo totale',
         'timer' => 'Timer',
         'earnings' => 'Guadagni attività',
@@ -25,13 +26,22 @@ return [
     'all_completed' => 'Tutte le attività sono completate. Seleziona “Mostra completate” per vederle.',
     'delete' => [
         'title' => 'Eliminare questa attività?',
-        'description' => 'Questo sposta “:description” e il suo tempo tracciato nel Cestino. Puoi ripristinarla da lì o eliminarla definitivamente in seguito.',
+        'description' => 'Questo sposta “:title” e il suo tempo tracciato nel Cestino. Puoi ripristinarla da lì o eliminarla definitivamente in seguito.',
+    ],
+    'show' => [
+        'details' => 'Dettagli',
+        'no_description' => 'Nessuna descrizione. Modifica l’attività per aggiungerne una.',
+        'back' => 'Torna alle attività',
     ],
     'form' => [
         'create_title' => 'Crea attività',
         'create_description' => 'Aggiungi una nuova attività per :project.',
         'edit_title' => 'Modifica attività',
         'edit_description' => 'Aggiorna questa attività per :project.',
+        'name' => 'Titolo',
+        'name_placeholder' => 'Titolo breve e leggibile',
+        'description' => 'Descrizione',
+        'description_hint' => 'Facoltativa — i dettagli completi, mostrati nella pagina dell’attività.',
         'time' => 'Tempo tracciato',
         'hours' => 'Ore',
         'minutes' => 'Minuti',

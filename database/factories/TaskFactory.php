@@ -15,7 +15,8 @@ class TaskFactory extends Factory
     {
         return [
             'project_id' => Project::factory(),
-            'description' => fake()->sentence(4),
+            'title' => fake()->sentence(4),
+            'description' => fake()->optional()->paragraph(),
             'total_seconds' => fake()->numberBetween(0, 8 * 3600),
             'is_running' => false,
             'timer_started_at' => null,

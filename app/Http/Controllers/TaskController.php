@@ -34,6 +34,22 @@ class TaskController extends Controller
     }
 
     /**
+     * The task detail page — the home for the full description body and the
+     * task's attachments. (The rest of the hierarchy has no detail pages; a task
+     * earns one because it carries rich content.)
+     */
+    public function show(Client $client, Project $project, Task $task): Response
+    {
+        $this->authorize('view', $task);
+
+        return Inertia::render('Tasks/Show', [
+            'client' => $client,
+            'project' => $project,
+            'task' => $task,
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create(Client $client, Project $project): Response
@@ -153,7 +169,7 @@ class TaskController extends Controller
             'client_id' => $client->id,
             'project_id' => $project->id,
             'task_id' => $task->id,
-            'task_description' => $task->description,
+            'task_title' => $task->title,
             'project_name' => $project->name,
             'total_seconds' => $newTotalSeconds,
         ]), 60 * 24 * 30);

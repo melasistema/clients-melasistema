@@ -35,7 +35,7 @@ test('happy path: log in, build the hierarchy, and start a timer', async ({ page
     // --- Create a task ---------------------------------------------------
     await page.getByRole('link', { name: 'Tasks' }).click();
     await page.getByRole('link', { name: 'Add task' }).click();
-    await page.locator('#description').fill(TASK);
+    await page.locator('#title').fill(TASK);
     await page.getByRole('button', { name: 'Save' }).click();
     await expect(page.getByText(TASK)).toBeVisible();
 

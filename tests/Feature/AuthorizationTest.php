@@ -54,6 +54,7 @@ test('a user cannot touch another user\'s tasks or timers', function () {
     $attacker = User::factory()->create();
 
     $this->actingAs($attacker)->get(route('clients.projects.tasks.index', [$client, $project]))->assertForbidden();
+    $this->actingAs($attacker)->get(route('clients.projects.tasks.show', [$client, $project, $task]))->assertForbidden();
     $this->actingAs($attacker)->post(route('clients.projects.tasks.store', [$client, $project]), [])->assertForbidden();
     $this->actingAs($attacker)->get(route('clients.projects.tasks.edit', [$client, $project, $task]))->assertForbidden();
     $this->actingAs($attacker)->put(route('clients.projects.tasks.update', [$client, $project, $task]), [])->assertForbidden();
@@ -69,6 +70,7 @@ test('the owner can access their own hierarchy', function () {
 
     $this->actingAs($owner)->get(route('clients.projects.index', $client))->assertOk();
     $this->actingAs($owner)->get(route('clients.projects.tasks.index', [$client, $project]))->assertOk();
+    $this->actingAs($owner)->get(route('clients.projects.tasks.show', [$client, $project, $task]))->assertOk();
     $this->actingAs($owner)->get(route('clients.projects.tasks.edit', [$client, $project, $task]))->assertOk();
 });
 

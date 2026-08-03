@@ -33,7 +33,7 @@ interface TrashedProject {
 }
 interface TrashedTask {
     id: number;
-    description: string;
+    title: string;
     project_name: string;
     client_name: string;
     deleted_at: string;
@@ -196,7 +196,7 @@ const isEmpty = () => props.clients.length === 0 && props.projects.length === 0 
                         </TableHeader>
                         <TableBody>
                             <TableRow v-for="task in tasks" :key="task.id">
-                                <TableCell class="font-medium text-foreground">{{ task.description }}</TableCell>
+                                <TableCell class="font-medium text-foreground">{{ task.title }}</TableCell>
                                 <TableCell class="text-muted-foreground">{{ task.project_name }}</TableCell>
                                 <TableCell class="text-muted-foreground">{{ task.client_name }}</TableCell>
                                 <TableCell class="text-muted-foreground">{{ formatDate(task.deleted_at) }}</TableCell>
@@ -213,7 +213,7 @@ const isEmpty = () => props.clients.length === 0 && props.projects.length === 0 
                                                 <AlertDialogHeader>
                                                     <AlertDialogTitle>{{ __('trash.purge.task_title') }}</AlertDialogTitle>
                                                     <AlertDialogDescription>
-                                                        {{ __('trash.purge.task_description', { description: task.description }) }}
+                                                        {{ __('trash.purge.task_description', { title: task.title }) }}
                                                     </AlertDialogDescription>
                                                 </AlertDialogHeader>
                                                 <AlertDialogFooter>

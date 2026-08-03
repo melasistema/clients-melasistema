@@ -32,7 +32,7 @@ export interface ActiveTimer {
     client_id: number;
     project_id: number;
     task_id: number;
-    task_description: string;
+    task_title: string;
     project_name: string;
     client_name: string;
     timer_started_at: string;
@@ -46,7 +46,7 @@ export interface LastTimer {
     client_id: number;
     project_id: number;
     task_id: number;
-    task_description: string;
+    task_title: string;
     project_name: string;
     total_seconds: number;
 }
@@ -137,7 +137,10 @@ export interface Project {
 export interface Task {
     id: number;
     project_id: number;
-    description: string;
+    // Short, scannable headline (shown in the list + timer bar).
+    title: string;
+    // Longer optional body, shown on the task detail page. Null when unset.
+    description: string | null;
     total_seconds: number;
     is_running: boolean;
     timer_started_at: string | null;

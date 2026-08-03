@@ -40,8 +40,9 @@ return [
     ],
 
     // Each client is matched on `contact_email` (unique in the schema).
-    // Projects are matched on (client, `name`); tasks on (project, `description`);
-    // payments on (project, `note`).
+    // Projects are matched on (client, `name`); tasks on (project, `title`);
+    // payments on (project, `note`). A task's `title` is the short list headline;
+    // the optional `description` is the longer body shown on its detail page.
     'clients' => [
         [
             'company_name' => 'Acme Corporation',
@@ -60,10 +61,18 @@ return [
                     'agreed_fee' => null,
                     'completed_at' => null,
                     'tasks' => [
-                        ['description' => 'Discovery & stakeholder interviews', 'total_seconds' => $hours(6)],
-                        ['description' => 'Wireframes and design system audit', 'total_seconds' => $hours(9.5)],
-                        ['description' => 'Homepage build (Vue + Inertia)', 'total_seconds' => $hours(12)],
-                        ['description' => 'Responsive QA and polish', 'total_seconds' => $hours(4.25)],
+                        [
+                            'title' => 'Discovery & stakeholder interviews',
+                            'description' => 'Kick-off calls with marketing and sales to map the current site’s pain points, agree on primary goals (lead-gen over brochureware) and collect brand assets.',
+                            'total_seconds' => $hours(6),
+                        ],
+                        ['title' => 'Wireframes and design system audit', 'total_seconds' => $hours(9.5)],
+                        [
+                            'title' => 'Homepage build (Vue + Inertia)',
+                            'description' => "Implement the new homepage against the design system:\n- Hero with animated headline\n- Social-proof logo strip\n- Feature grid + CTA sections",
+                            'total_seconds' => $hours(12),
+                        ],
+                        ['title' => 'Responsive QA and polish', 'total_seconds' => $hours(4.25)],
                     ],
                 ],
                 [
@@ -74,8 +83,8 @@ return [
                     'agreed_fee' => null,
                     'completed_at' => '-15 days',
                     'tasks' => [
-                        ['description' => 'Core Web Vitals fixes', 'total_seconds' => $hours(3)],
-                        ['description' => 'Structured data rollout', 'total_seconds' => $hours(2.5)],
+                        ['title' => 'Core Web Vitals fixes', 'total_seconds' => $hours(3)],
+                        ['title' => 'Structured data rollout', 'total_seconds' => $hours(2.5)],
                     ],
                     'payments' => [
                         ['amount' => 385.00, 'paid_at' => '-12 days', 'note' => 'Final balance'],
@@ -100,9 +109,13 @@ return [
                     'agreed_fee' => 12000.00,
                     'completed_at' => null,
                     'tasks' => [
-                        ['description' => 'Cart & checkout API integration', 'total_seconds' => $hours(14)],
-                        ['description' => 'Payment gateway (Stripe) wiring', 'total_seconds' => $hours(7.75)],
-                        ['description' => 'Order confirmation emails', 'total_seconds' => $hours(2)],
+                        [
+                            'title' => 'Cart & checkout API integration',
+                            'description' => 'Wire the headless storefront to the checkout API: cart persistence, line-item validation, tax + shipping calculation, and error states for out-of-stock items.',
+                            'total_seconds' => $hours(14),
+                        ],
+                        ['title' => 'Payment gateway (Stripe) wiring', 'total_seconds' => $hours(7.75)],
+                        ['title' => 'Order confirmation emails', 'total_seconds' => $hours(2)],
                     ],
                     'payments' => [
                         ['amount' => 3600.00, 'paid_at' => '-30 days', 'note' => 'Deposit (30%)'],
@@ -127,9 +140,9 @@ return [
                     'agreed_fee' => 7000.00,
                     'completed_at' => '-40 days',
                     'tasks' => [
-                        ['description' => 'Auth & onboarding flow', 'total_seconds' => $hours(8)],
-                        ['description' => 'Subscription management screens', 'total_seconds' => $hours(10.5)],
-                        ['description' => 'Push notification setup', 'total_seconds' => $hours(3.25)],
+                        ['title' => 'Auth & onboarding flow', 'total_seconds' => $hours(8)],
+                        ['title' => 'Subscription management screens', 'total_seconds' => $hours(10.5)],
+                        ['title' => 'Push notification setup', 'total_seconds' => $hours(3.25)],
                     ],
                     'payments' => [
                         ['amount' => 3500.00, 'paid_at' => '-70 days', 'note' => 'Deposit (50%)'],
@@ -156,8 +169,8 @@ return [
                     'agreed_fee' => null,
                     'completed_at' => null,
                     'tasks' => [
-                        ['description' => 'Design & content', 'total_seconds' => $hours(5.5)],
-                        ['description' => 'Build & deploy', 'total_seconds' => $hours(7)],
+                        ['title' => 'Design & content', 'total_seconds' => $hours(5.5)],
+                        ['title' => 'Build & deploy', 'total_seconds' => $hours(7)],
                     ],
                 ],
             ],

@@ -27,12 +27,14 @@ Route::get('report', [ReportController::class, 'index'])
 // The domain hierarchy (Client -> Project -> Task). `scoped()` enforces the URL
 // nesting at the routing layer: a project must belong to the client in the URL,
 // a task to that project — mismatched IDs 404 before a controller runs.
-// `show` is intentionally omitted; there are no detail pages (lists link to
-// projects/tasks/edit directly). Ownership is enforced by the model policies.
+// Clients/projects have no detail pages (`show` omitted; lists link to the child
+// listing or to edit). A *task* is the exception: it carries rich content (a full
+// description body + attachments), so it has a `show` detail page. Ownership is
+// enforced by the model policies.
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clients', ClientController::class)->except('show');
     Route::resource('clients.projects', ProjectController::class)->scoped()->except('show');
-    Route::resource('clients.projects.tasks', TaskController::class)->scoped()->except('show');
+    Route::resource('clients.projects.tasks', TaskController::class)->scoped();
 
     // The payment ledger. Only store/destroy — there is no listing (payments are
     // rendered inline on the project) and no detail/edit page. `scoped()` enforces

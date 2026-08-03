@@ -130,7 +130,7 @@ const formatTime = (timestamp: string) => {
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>{{ __('common.description') }}</TableHead>
+                            <TableHead>{{ __('tasks.table.title') }}</TableHead>
                             <TableHead>{{ __('tasks.table.time') }}</TableHead>
                             <TableHead>{{ __('tasks.table.timer') }}</TableHead>
                             <TableHead>{{ __('tasks.table.earnings') }}</TableHead>
@@ -141,7 +141,13 @@ const formatTime = (timestamp: string) => {
                         <TableRow v-for="task in visibleTasks" :key="task.id" :class="task.is_completed ? 'opacity-60' : ''">
                             <TableCell class="font-medium text-foreground">
                                 <div class="flex items-center gap-2">
-                                    <span :class="task.is_completed ? 'line-through' : ''">{{ task.description }}</span>
+                                    <Link
+                                        :href="route('clients.projects.tasks.show', [client.id, project.id, task.id])"
+                                        class="hover:underline"
+                                        :class="task.is_completed ? 'line-through' : ''"
+                                    >
+                                        {{ task.title }}
+                                    </Link>
                                     <span
                                         v-if="task.is_completed"
                                         class="inline-flex items-center rounded-md bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-950 dark:text-green-300"
@@ -183,7 +189,7 @@ const formatTime = (timestamp: string) => {
                                             <AlertDialogHeader>
                                                 <AlertDialogTitle>{{ __('tasks.delete.title') }}</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    {{ __('tasks.delete.description', { description: task.description }) }}
+                                                    {{ __('tasks.delete.description', { title: task.title }) }}
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <AlertDialogFooter>

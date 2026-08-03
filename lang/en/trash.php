@@ -24,6 +24,6 @@ return [
         'project_title' => 'Permanently delete :name?',
         'project_description' => 'This erases the project and all of its tasks for good. This cannot be undone.',
         'task_title' => 'Permanently delete this task?',
-        'task_description' => 'This erases “:description” and its tracked time for good. This cannot be undone.',
+        'task_description' => 'This erases “:title” and its tracked time for good. This cannot be undone.',
     ],
 ];

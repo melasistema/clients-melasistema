@@ -65,7 +65,7 @@ test('the running timer is shared as app chrome on every page', function () {
             ->where('activeTimer.task_id', $task->id)
             ->where('activeTimer.project_id', $project->id)
             ->where('activeTimer.client_id', $client->id)
-            ->where('activeTimer.task_description', $task->description)
+            ->where('activeTimer.task_title', $task->title)
         );
 });
 

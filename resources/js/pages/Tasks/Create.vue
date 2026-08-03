@@ -16,6 +16,7 @@ const props = defineProps<{ client: Client; project: Project }>();
 const { __ } = useTranslations();
 
 const form = useForm({
+    title: '',
     description: '',
     total_seconds: 0,
 });
@@ -63,8 +64,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <form class="mt-6 max-w-xl space-y-6" @submit.prevent="submit">
                 <div class="grid gap-2">
-                    <Label for="description">{{ __('common.description') }}</Label>
-                    <Textarea id="description" v-model="form.description" rows="3" />
+                    <Label for="title">{{ __('tasks.form.name') }}</Label>
+                    <Input id="title" v-model="form.title" type="text" :placeholder="__('tasks.form.name_placeholder')" />
+                    <InputError :message="form.errors.title" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="description">{{ __('tasks.form.description') }}</Label>
+                    <Textarea id="description" v-model="form.description" rows="5" />
+                    <p class="text-xs text-muted-foreground">{{ __('tasks.form.description_hint') }}</p>
                     <InputError :message="form.errors.description" />
                 </div>
 

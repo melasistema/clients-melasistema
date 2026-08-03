@@ -24,6 +24,6 @@ return [
         'project_title' => 'Eliminare definitivamente :name?',
         'project_description' => 'Questo cancella il progetto e tutte le sue attività per sempre. Non può essere annullato.',
         'task_title' => 'Eliminare definitivamente questa attività?',
-        'task_description' => 'Questo cancella “:description” e il suo tempo tracciato per sempre. Non può essere annullato.',
+        'task_description' => 'Questo cancella “:title” e il suo tempo tracciato per sempre. Non può essere annullato.',
     ],
 ];

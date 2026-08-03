@@ -106,7 +106,7 @@ class HandleInertiaRequests extends Middleware
             'client_id' => $task->project->client->id,
             'project_id' => $task->project->id,
             'task_id' => $task->id,
-            'task_description' => $task->description,
+            'task_title' => $task->title,
             'project_name' => $task->project->name,
             'client_name' => $task->project->client->company_name,
             'timer_started_at' => $task->timer_started_at,

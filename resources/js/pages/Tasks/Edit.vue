@@ -3,6 +3,7 @@ import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
 import TimeInput from '@/components/TimeInput.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useTranslations } from '@/composables/useTranslations';
@@ -15,7 +16,8 @@ const props = defineProps<{ client: Client; project: Project; task: Task }>();
 const { __ } = useTranslations();
 
 const form = useForm({
-    description: props.task.description,
+    title: props.task.title,
+    description: props.task.description ?? '',
     total_seconds: props.task.total_seconds,
 });
 
@@ -43,8 +45,15 @@ const breadcrumbs: BreadcrumbItem[] = [
 
             <form class="mt-6 max-w-xl space-y-6" @submit.prevent="submit">
                 <div class="grid gap-2">
-                    <Label for="description">{{ __('common.description') }}</Label>
-                    <Textarea id="description" v-model="form.description" rows="3" />
+                    <Label for="title">{{ __('tasks.form.name') }}</Label>
+                    <Input id="title" v-model="form.title" type="text" :placeholder="__('tasks.form.name_placeholder')" />
+                    <InputError :message="form.errors.title" />
+                </div>
+
+                <div class="grid gap-2">
+                    <Label for="description">{{ __('tasks.form.description') }}</Label>
+                    <Textarea id="description" v-model="form.description" rows="5" />
+                    <p class="text-xs text-muted-foreground">{{ __('tasks.form.description_hint') }}</p>
                     <InputError :message="form.errors.description" />
                 </div>
 

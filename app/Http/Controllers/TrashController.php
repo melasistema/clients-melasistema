@@ -48,7 +48,7 @@ class TrashController extends Controller
             ->get()
             ->map(fn ($task) => [
                 'id' => $task->id,
-                'description' => $task->description,
+                'title' => $task->title,
                 'project_name' => $task->project->name,
                 'client_name' => $task->project->client->company_name,
                 'deleted_at' => $task->deleted_at,

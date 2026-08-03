@@ -28,9 +28,9 @@ const { __ } = useTranslations();
 
 const form = useForm({});
 
-// The project's task list — the closest thing to a task detail page (there are no
-// task show pages), so clicking the label lands you where the task lives.
-const taskHref = (timer: { client_id: number; project_id: number }) => route('clients.projects.tasks.index', [timer.client_id, timer.project_id]);
+// The task's detail page, so clicking the label lands you right on the task.
+const taskHref = (timer: { client_id: number; project_id: number; task_id: number }) =>
+    route('clients.projects.tasks.show', [timer.client_id, timer.project_id, timer.task_id]);
 
 const stopTimer = () => {
     const timer = activeTimer.value;
@@ -101,7 +101,7 @@ const elapsed = computed(() => {
         <span class="font-mono text-sm font-semibold text-green-700 tabular-nums dark:text-green-400">{{ elapsed }}</span>
 
         <Link :href="taskHref(activeTimer)" class="hidden max-w-[16rem] min-w-0 truncate text-xs text-muted-foreground hover:underline sm:inline">
-            <span class="text-foreground">{{ activeTimer.task_description }}</span>
+            <span class="text-foreground">{{ activeTimer.task_title }}</span>
             · {{ activeTimer.project_name }}
         </Link>
 
@@ -129,7 +129,7 @@ const elapsed = computed(() => {
 
         <Link :href="taskHref(lastTimer)" class="hidden max-w-[16rem] min-w-0 truncate text-xs hover:underline sm:inline">
             <span class="text-muted-foreground">{{ __('common.timer.last') }}:</span>
-            <span class="text-foreground">{{ lastTimer.task_description }}</span>
+            <span class="text-foreground">{{ lastTimer.task_title }}</span>
             · {{ lastTimer.project_name }}
         </Link>
 

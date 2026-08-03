@@ -59,7 +59,7 @@ class DemoDataSeeder extends Seeder
 
                 foreach ($tasks as $taskData) {
                     $project->tasks()->updateOrCreate(
-                        ['description' => $taskData['description']],
+                        ['title' => $taskData['title']],
                         $taskData,
                     );
                 }

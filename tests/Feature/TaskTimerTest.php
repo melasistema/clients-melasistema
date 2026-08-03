@@ -121,7 +121,7 @@ test('the last stopped timer is shared to the frontend from its cookie', functio
         'client_id' => 1,
         'project_id' => 2,
         'task_id' => 3,
-        'task_description' => 'Wireframes',
+        'task_title' => 'Wireframes',
         'project_name' => 'Website',
         'total_seconds' => 900,
     ]);
@@ -131,7 +131,7 @@ test('the last stopped timer is shared to the frontend from its cookie', functio
         ->get('/dashboard')
         ->assertInertia(fn ($page) => $page
             ->where('lastTimer.task_id', 3)
-            ->where('lastTimer.task_description', 'Wireframes')
+            ->where('lastTimer.task_title', 'Wireframes')
             ->where('lastTimer.total_seconds', 900)
         );
 });
