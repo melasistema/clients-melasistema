@@ -10,6 +10,7 @@
 .env
 .env.backup
 .env.production
+.env.e2e
 .phpactor.json
 .phpunit.result.cache
 Homestead.json
@@ -24,6 +25,13 @@ yarn-error.log
 /.zed
 /.antigravitycli
 /references
+
+# ── End-to-end tests (Playwright) ─────────────────────────────
+# Throwaway artifacts from the isolated E2E run (see tests/e2e/).
+/database/e2e.sqlite
+/test-results
+/playwright-report
+/playwright/.cache
 
 # ── macOS noise ───────────────────────────────────────────────
 .DS_Store
