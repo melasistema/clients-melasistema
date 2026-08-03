@@ -25,6 +25,13 @@ yarn-error.log
 /.antigravitycli
 /references
 
+# ── End-to-end tests (Playwright) ─────────────────────────────
+# Throwaway artifacts from the isolated E2E run (see tests/e2e/).
+/database/e2e.sqlite
+/test-results
+/playwright-report
+/playwright/.cache
+
 # ── macOS noise ───────────────────────────────────────────────
 .DS_Store
 
