@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.6.1](https://github.com/melasistema/clients-melasistema/compare/v1.6.0...v1.6.1) (2026-08-03)
+
+
+### Bug Fixes
+
+* **security:** rate-limit auth routes; extract TimerService, add coverage floor & .nvmrc ([2c38ee8](https://github.com/melasistema/clients-melasistema/commit/2c38ee8252dd90c5e6def972255a6308151a3bc9))
+* **test:** add e2e env example ([0f0ee54](https://github.com/melasistema/clients-melasistema/commit/0f0ee54819a06d995bf2faba64c2b0a854ed029f))
+
 ## [1.6.0](https://github.com/melasistema/clients-melasistema/compare/v1.5.0...v1.6.0) (2026-08-02)
 
 
