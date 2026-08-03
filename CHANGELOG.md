@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.7.0](https://github.com/melasistema/clients-melasistema/compare/v1.6.4...v1.7.0) (2026-08-03)
+
+
+### Features
+
+* **attachments:** add file & link attachments to tasks ([22d7211](https://github.com/melasistema/clients-melasistema/commit/22d721110888a47ac0b0561893b00b63f74e5dfa))
+* **tasks:** split task into title and full description with a detail page ([29c956e](https://github.com/melasistema/clients-melasistema/commit/29c956ecad7e6add54877e0051c2df3e2619c6ed))
+
 ### [1.6.4](https://github.com/melasistema/clients-melasistema/compare/v1.6.3...v1.6.4) (2026-08-03)
 
 ### [1.6.3](https://github.com/melasistema/clients-melasistema/compare/v1.6.2...v1.6.3) (2026-08-03)
