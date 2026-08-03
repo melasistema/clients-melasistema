@@ -19,9 +19,10 @@ class DashboardController extends Controller
      * request by HandleInertiaRequests, so it isn't a dashboard prop.)
      *
      * Note the deliberate asymmetry: money can be windowed ("received this month")
-     * because payments carry a `paid_at`; tracked time cannot — a task only holds an
-     * all-time `total_seconds`, there is no dated time-entry log — so hours are
-     * reported all-time.
+     * because payments carry a `paid_at`; tracked time is shown all-time here (from
+     * `total_seconds`) even though the dated `time_entries` ledger exists — the
+     * Report page handles period-windowed hours and earnings, while the Dashboard
+     * keeps the simpler all-time rollup.
      */
     public function index(): Response
     {

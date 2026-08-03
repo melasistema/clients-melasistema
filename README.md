@@ -12,7 +12,7 @@ Inertia 2 + Vue 3 + TypeScript + Tailwind 4. There's no account to sign up for
 and no data leaving your server — you host it, you own it.
 
 <p align="center">
-  <img src="assets/screenshots/01-Dashboard-MelaFreelance.png" width="900"
+  <img src="assets/screenshots/01-dashboard-melafreelance.png" width="900"
        alt="MelaFreelance dashboard: Outstanding, Received this month and Hours tracked KPI cards above an Awaiting-payment panel and a Recent-payments feed, with the always-on running-timer bar in the header." />
 </p>
 
@@ -128,6 +128,12 @@ and its whole subtree goes with it (a trashed client hides its projects and
 tasks and drops out of your totals). Restore it and everything comes back
 exactly as it was. Only a permanent delete from Trash wipes it for good.
 
+### Settings & dark mode
+
+The **Settings** page lets you update your profile (name, email), change your
+password, and switch between **light, dark, and system** appearance themes. Dark
+mode is fully supported throughout the interface.
+
 ---
 
 ## Getting it running
@@ -144,8 +150,8 @@ git clone https://github.com/melasistema/melafreelance.git
 cd melafreelance
 cp .env.example .env
 
+composer install                        # Sail needs vendor/ to exist
 ./vendor/bin/sail up -d                 # start the containers
-./vendor/bin/sail composer install
 ./vendor/bin/sail npm install
 ./vendor/bin/sail artisan key:generate
 ./vendor/bin/sail artisan migrate
@@ -247,6 +253,24 @@ There is no cloud, no telemetry, and no shared database — MelaFreelance runs
 entirely on the server you put it on, and your clients, hours, and earnings
 never leave it. Back up your database the way you back up anything else you care
 about.
+
+---
+
+## Under the hood
+
+A few things self-hosters and contributors may find useful:
+
+- **Security headers** — the app ships with hardened response headers out of the
+  box: Content-Security-Policy (with script nonce), HSTS, X-Frame-Options DENY,
+  X-Content-Type-Options, and a strict Referrer-Policy.
+- **Server-side rendering** — a full SSR entry point (`ssr.ts`) is included for
+  faster first paint and better SEO.
+- **CI/CD** — the repo includes GitHub Actions workflows: a **CI** pipeline
+  (lint, type-check, Pest tests with coverage floor, Playwright E2E) and a
+  **Deploy** pipeline that ships the exact tested build artifact to production.
+- **Development** — `composer dev` starts the PHP server, queue listener, log
+  tail, and Vite dev server together. The test suite runs on in-memory SQLite
+  for speed.
 
 ---
 
