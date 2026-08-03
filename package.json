@@ -11,6 +11,7 @@
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
+        "type-check": "vue-tsc --noEmit",
         "release": "standard-version"
     },
     "devDependencies": {

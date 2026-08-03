@@ -19,7 +19,9 @@ const { __ } = useTranslations();
 
 const form = useForm({
     name: props.project.name,
-    description: props.project.description,
+    // Coerce the nullable column to '' so the <Textarea> (which takes string, not
+    // null) binds cleanly; submit() normalizes an empty description back to null.
+    description: props.project.description ?? '',
     hourly_rate: props.project.hourly_rate,
     agreed_fee: (props.project.agreed_fee ?? '') as number | string,
 });
@@ -27,6 +29,7 @@ const form = useForm({
 const submit = () => {
     form.transform((data) => ({
         ...data,
+        description: data.description === '' ? null : data.description,
         agreed_fee: data.agreed_fee === '' || data.agreed_fee === null ? null : data.agreed_fee,
     })).put(route('clients.projects.update', [props.client.id, props.project.id]));
 };
@@ -38,7 +41,7 @@ const feeAmount = computed(() => Number(props.project.agreed_fee ?? 0));
 const paymentForm = useForm({
     amount: '' as number | string,
     paid_at: new Date().toISOString().slice(0, 10),
-    note: '' as string | null,
+    note: '',
 });
 
 const addPayment = () => {

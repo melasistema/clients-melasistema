@@ -60,6 +60,12 @@ jobs:
       - name: Lint Frontend (ESLint)
         run: npx eslint .
 
+      # Type-check the Vue/TS against the hand-written types in resources/js/types:
+      # any drift or misuse of a domain type (Client/Project/Task/...) now fails CI,
+      # so the types are an enforced contract, not just documentation.
+      - name: Type-check Frontend (vue-tsc)
+        run: npm run type-check
+
   test:
     name: Test
     runs-on: ubuntu-latest
