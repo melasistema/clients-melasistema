@@ -12,6 +12,23 @@ class Client extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * Force-deleting a client purges its whole project/task subtree via the DB
+     * cascade, which bypasses those models' Eloquent events — so purge every
+     * descendant's attachment files here. (Clients carry no attachments of their
+     * own yet.)
+     */
+    protected static function booted(): void
+    {
+        static::forceDeleting(function (Client $client) {
+            $client->projects()->withTrashed()->get()->each(function (Project $project) {
+                $project->attachments()->get()->each->delete();
+                $project->tasks()->withTrashed()->get()
+                    ->each(fn (Task $task) => $task->attachments()->get()->each->delete());
+            });
+        });
+    }
+
     protected $fillable = [
         'company_name',
         'contact_name',

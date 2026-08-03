@@ -134,6 +134,26 @@ export interface Project {
     updated_at?: string;
 }
 
+// A file or link attached to a task (later a project). `kind` splits the two.
+// File rows expose a `stream_url` (the authorized route serving the private
+// bytes); link rows expose `url`. Metadata (`disk`/`path`/`sha256`) is hidden.
+export interface Attachment {
+    id: number;
+    kind: 'file' | 'link';
+    title: string | null;
+    // File-only fields (null for links).
+    original_filename: string | null;
+    mime_type: string | null;
+    size_bytes: number | null;
+    is_image: boolean;
+    stream_url: string | null;
+    // Link-only field (null for files).
+    url: string | null;
+    position: number;
+    created_at?: string;
+    updated_at?: string;
+}
+
 export interface Task {
     id: number;
     project_id: number;
@@ -147,6 +167,8 @@ export interface Task {
     completed_at: string | null;
     this_task_total_entry: number;
     is_completed: boolean;
+    // Loaded on the task detail page (Tasks/Show) only.
+    attachments?: Attachment[];
     created_at?: string;
     updated_at?: string;
 }

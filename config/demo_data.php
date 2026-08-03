@@ -43,6 +43,15 @@ return [
     // Projects are matched on (client, `name`); tasks on (project, `title`);
     // payments on (project, `note`). A task's `title` is the short list headline;
     // the optional `description` is the longer body shown on its detail page.
+    //
+    // A task may carry `attachments` (shown on its detail page). Files are
+    // placeholders GENERATED offline by the seeder from a `source`
+    // (`image` | `pdf` | `html`) — no bundled binaries, no network — so a fresh
+    // `db:seed` yields visible, openable attachments. Each attachment is either:
+    //   ['kind' => 'file', 'source' => 'image', 'title' => '…']  (generated file)
+    //   ['kind' => 'link', 'url' => 'https://…', 'title' => '…'] (external link)
+    // Files match on (task, generated path), links on (task, `url`), so
+    // re-seeding stays idempotent and never orphans bytes.
     'clients' => [
         [
             'company_name' => 'Acme Corporation',
@@ -65,12 +74,21 @@ return [
                             'title' => 'Discovery & stakeholder interviews',
                             'description' => 'Kick-off calls with marketing and sales to map the current site’s pain points, agree on primary goals (lead-gen over brochureware) and collect brand assets.',
                             'total_seconds' => $hours(6),
+                            'attachments' => [
+                                ['kind' => 'file', 'source' => 'pdf', 'title' => 'Discovery brief'],
+                                ['kind' => 'link', 'url' => 'https://www.notion.so/acme/kickoff-notes', 'title' => 'Kick-off notes (Notion)'],
+                            ],
                         ],
                         ['title' => 'Wireframes and design system audit', 'total_seconds' => $hours(9.5)],
                         [
                             'title' => 'Homepage build (Vue + Inertia)',
                             'description' => "Implement the new homepage against the design system:\n- Hero with animated headline\n- Social-proof logo strip\n- Feature grid + CTA sections",
                             'total_seconds' => $hours(12),
+                            'attachments' => [
+                                ['kind' => 'file', 'source' => 'image', 'title' => 'Homepage hero — desktop'],
+                                ['kind' => 'file', 'source' => 'image', 'title' => 'Homepage hero — mobile'],
+                                ['kind' => 'link', 'url' => 'https://www.figma.com/file/acme-homepage', 'title' => 'Figma — homepage'],
+                            ],
                         ],
                         ['title' => 'Responsive QA and polish', 'total_seconds' => $hours(4.25)],
                     ],
@@ -113,6 +131,11 @@ return [
                             'title' => 'Cart & checkout API integration',
                             'description' => 'Wire the headless storefront to the checkout API: cart persistence, line-item validation, tax + shipping calculation, and error states for out-of-stock items.',
                             'total_seconds' => $hours(14),
+                            'attachments' => [
+                                ['kind' => 'file', 'source' => 'image', 'title' => 'Checkout flow — screenshot'],
+                                ['kind' => 'file', 'source' => 'html', 'title' => 'API response sample'],
+                                ['kind' => 'link', 'url' => 'https://www.figma.com/file/nordic-checkout', 'title' => 'Figma — checkout'],
+                            ],
                         ],
                         ['title' => 'Payment gateway (Stripe) wiring', 'total_seconds' => $hours(7.75)],
                         ['title' => 'Order confirmation emails', 'total_seconds' => $hours(2)],
@@ -169,7 +192,14 @@ return [
                     'agreed_fee' => null,
                     'completed_at' => null,
                     'tasks' => [
-                        ['title' => 'Design & content', 'total_seconds' => $hours(5.5)],
+                        [
+                            'title' => 'Design & content',
+                            'total_seconds' => $hours(5.5),
+                            'attachments' => [
+                                ['kind' => 'file', 'source' => 'image', 'title' => 'Portfolio mockup'],
+                                ['kind' => 'link', 'url' => 'https://www.figma.com/file/my-portfolio', 'title' => 'Figma — portfolio'],
+                            ],
+                        ],
                         ['title' => 'Build & deploy', 'total_seconds' => $hours(7)],
                     ],
                 ],

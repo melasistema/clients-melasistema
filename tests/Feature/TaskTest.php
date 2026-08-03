@@ -56,6 +56,25 @@ test('a task can carry a full description body', function () {
     expect($project->tasks()->firstOrFail()->description)->toBe("Multi-line\nbody with details.");
 });
 
+test('the task page edits the task inline and returns to it', function () {
+    [$owner, $client, $project] = ownedProject();
+    $task = Task::factory()->for($project)->create(['title' => 'Old', 'total_seconds' => 0]);
+
+    $this->actingAs($owner)
+        ->put(route('clients.projects.tasks.update', [$client, $project, $task]), [
+            'title' => 'New title',
+            'description' => 'Fresh body.',
+            'total_seconds' => 3600,
+        ])
+        ->assertRedirect(route('clients.projects.tasks.show', [$client, $project, $task]));
+
+    $task->refresh();
+
+    expect($task->title)->toBe('New title')
+        ->and($task->description)->toBe('Fresh body.')
+        ->and($task->total_seconds)->toBe(3600);
+});
+
 test('the owner sees the task detail page with its title and body', function () {
     [$owner, $client, $project] = ownedProject();
     $task = Task::factory()->for($project)->create([

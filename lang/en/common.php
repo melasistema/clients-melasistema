@@ -7,6 +7,7 @@ return [
     'add' => 'Add',
     'create' => 'Create',
     'edit' => 'Edit',
+    'open' => 'Open',
     'delete' => 'Delete',
     'cancel' => 'Cancel',
     'save' => 'Save',

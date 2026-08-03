@@ -42,5 +42,24 @@ export function useFormatters() {
     const formatDay = (value: string | null | undefined): string =>
         value ? new Intl.DateTimeFormat(page.props.money.locale, { dateStyle: 'medium' }).format(new Date(value)) : '';
 
-    return { formatCurrency, formatDuration, formatDate, formatDay };
+    // A file size in human units (B / KB / MB / GB), locale-aware. Used by the
+    // attachment gallery so file chips don't inline their own Intl formatting.
+    const formatBytes = (bytes: number | string): string => {
+        const value = Math.max(Number(bytes) || 0, 0);
+        if (value < 1024) {
+            return `${value} B`;
+        }
+
+        const units = ['KB', 'MB', 'GB', 'TB'];
+        let size = value / 1024;
+        let unit = 0;
+        while (size >= 1024 && unit < units.length - 1) {
+            size /= 1024;
+            unit += 1;
+        }
+
+        return `${new Intl.NumberFormat(page.props.money.locale, { maximumFractionDigits: 1 }).format(size)} ${units[unit]}`;
+    };
+
+    return { formatCurrency, formatDuration, formatDate, formatDay, formatBytes };
 }

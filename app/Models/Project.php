@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasAttachments;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,20 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Project extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasAttachments, HasFactory, SoftDeletes;
+
+    /**
+     * Force-deleting a project removes its task rows via the DB cascade, which
+     * bypasses their Eloquent events — so purge those tasks' attachment files
+     * here. (The trait already handles this project's own attachments.)
+     */
+    protected static function booted(): void
+    {
+        static::forceDeleting(function (Project $project) {
+            $project->tasks()->withTrashed()->get()
+                ->each(fn (Task $task) => $task->attachments()->get()->each->delete());
+        });
+    }
 
     protected $fillable = [
         'name',

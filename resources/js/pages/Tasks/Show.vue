@@ -1,11 +1,17 @@
 <script setup lang="ts">
+import AttachmentGallery from '@/components/AttachmentGallery.vue';
 import Heading from '@/components/Heading.vue';
+import InputError from '@/components/InputError.vue';
+import TimeInput from '@/components/TimeInput.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { useFormatters } from '@/composables/useFormatters';
 import { useTranslations } from '@/composables/useTranslations';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project, type Task } from '@/types';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+import { Head, Link, router, useForm } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps<{ client: Client; project: Project; task: Task }>();
@@ -20,7 +26,24 @@ const breadcrumbs: BreadcrumbItem[] = [
     { title: props.task.title, href: route('clients.projects.tasks.show', [props.client.id, props.project.id, props.task.id]) },
 ];
 
-const form = useForm({});
+// This page is both the task's detail view and its editor — the title,
+// description and tracked time are edited inline (there is no separate Edit page).
+const form = useForm({
+    title: props.task.title,
+    description: props.task.description ?? '',
+    total_seconds: props.task.total_seconds,
+});
+
+const save = () => {
+    form.put(route('clients.projects.tasks.update', [props.client.id, props.project.id, props.task.id]), {
+        preserveScroll: true,
+    });
+};
+
+// Timer / completion actions post on their own, independent of the edit form.
+const act = (name: string) => {
+    router.post(route(name, [props.client.id, props.project.id, props.task.id]), {}, { preserveScroll: true });
+};
 
 // Live-ticking clock for a running timer (mirrors Tasks/Index).
 const currentTime = ref(Date.now());
@@ -47,10 +70,6 @@ const runningElapsed = computed(() => {
 
     return formatDuration(Math.max(Math.floor((currentTime.value - startedAt) / 1000), 0));
 });
-
-const post = (name: string) => {
-    form.post(route(name, [props.client.id, props.project.id, props.task.id]), { preserveScroll: true });
-};
 </script>
 
 <template>
@@ -60,21 +79,40 @@ const post = (name: string) => {
         <div class="px-4 py-6">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <Heading :title="task.title" :description="`${project.name} · ${client.company_name}`" />
-                <div class="flex items-center gap-2">
-                    <Link
-                        :href="route('clients.projects.tasks.index', [client.id, project.id])"
-                        :class="buttonVariants({ variant: 'ghost', size: 'sm' })"
-                    >
-                        {{ __('tasks.show.back') }}
-                    </Link>
-                    <Link
-                        :href="route('clients.projects.tasks.edit', [client.id, project.id, task.id])"
-                        :class="buttonVariants({ variant: 'outline', size: 'sm' })"
-                    >
-                        {{ __('common.edit') }}
-                    </Link>
-                </div>
+                <Link
+                    :href="route('clients.projects.tasks.index', [client.id, project.id])"
+                    :class="buttonVariants({ variant: 'ghost', size: 'sm' })"
+                >
+                    {{ __('tasks.show.back') }}
+                </Link>
             </div>
+
+            <!-- Editable task fields: this page is the task's editor too. -->
+            <form class="mt-6 rounded-xl border p-5" @submit.prevent="save">
+                <div class="flex flex-col gap-4 sm:flex-row">
+                    <div class="grid grow gap-2">
+                        <Label for="title">{{ __('tasks.form.name') }}</Label>
+                        <Input id="title" v-model="form.title" type="text" :placeholder="__('tasks.form.name_placeholder')" />
+                        <InputError :message="form.errors.title" />
+                    </div>
+                    <div class="grid gap-2 sm:w-56">
+                        <Label>{{ __('tasks.form.time') }}</Label>
+                        <TimeInput v-model="form.total_seconds" />
+                        <InputError :message="form.errors.total_seconds" />
+                    </div>
+                </div>
+
+                <div class="mt-4 grid gap-2">
+                    <Label for="description">{{ __('tasks.form.description') }}</Label>
+                    <Textarea id="description" v-model="form.description" rows="5" />
+                    <p class="text-xs text-muted-foreground">{{ __('tasks.form.description_hint') }}</p>
+                    <InputError :message="form.errors.description" />
+                </div>
+
+                <div class="mt-4 flex justify-end">
+                    <Button type="submit" :disabled="form.processing">{{ __('common.save') }}</Button>
+                </div>
+            </form>
 
             <!-- KPI row: total time, live timer state, task earnings. -->
             <div class="mt-6 grid gap-4 sm:grid-cols-3">
@@ -101,22 +139,23 @@ const post = (name: string) => {
             <!-- Timer / completion actions. -->
             <div class="mt-4 flex flex-wrap items-center gap-2">
                 <template v-if="!task.is_completed">
-                    <Button v-if="!task.is_running" variant="secondary" size="sm" @click="post('clients.projects.tasks.startTimer')">
+                    <Button v-if="!task.is_running" variant="secondary" size="sm" @click="act('clients.projects.tasks.startTimer')">
                         {{ __('tasks.start') }}
                     </Button>
-                    <Button v-else variant="default" size="sm" @click="post('clients.projects.tasks.stopTimer')">
+                    <Button v-else variant="default" size="sm" @click="act('clients.projects.tasks.stopTimer')">
                         {{ __('tasks.stop') }}
                     </Button>
-                    <Button variant="ghost" size="sm" @click="post('clients.projects.tasks.complete')">{{ __('common.complete') }}</Button>
+                    <Button variant="ghost" size="sm" @click="act('clients.projects.tasks.complete')">{{ __('common.complete') }}</Button>
                 </template>
-                <Button v-else variant="ghost" size="sm" @click="post('clients.projects.tasks.reopen')">{{ __('common.reopen') }}</Button>
+                <Button v-else variant="ghost" size="sm" @click="act('clients.projects.tasks.reopen')">{{ __('common.reopen') }}</Button>
             </div>
 
-            <!-- Full description body. -->
-            <div class="mt-6 rounded-xl border p-5">
-                <h2 class="text-sm font-medium text-muted-foreground">{{ __('tasks.show.details') }}</h2>
-                <p v-if="task.description" class="mt-2 whitespace-pre-wrap text-foreground">{{ task.description }}</p>
-                <p v-else class="mt-2 text-sm text-muted-foreground italic">{{ __('tasks.show.no_description') }}</p>
+            <!-- Files & links attached to this task. -->
+            <div class="mt-6">
+                <AttachmentGallery
+                    :attachments="task.attachments ?? []"
+                    :store-url="route('clients.projects.tasks.attachments.store', [client.id, project.id, task.id])"
+                />
             </div>
         </div>
     </AppLayout>

@@ -168,10 +168,10 @@ const formatTime = (timestamp: string) => {
                             <TableCell>
                                 <div class="flex items-center justify-end gap-2">
                                     <Link
-                                        :href="route('clients.projects.tasks.edit', [client.id, project.id, task.id])"
+                                        :href="route('clients.projects.tasks.show', [client.id, project.id, task.id])"
                                         :class="buttonVariants({ variant: 'outline', size: 'sm' })"
                                     >
-                                        {{ __('common.edit') }}
+                                        {{ __('common.open') }}
                                     </Link>
                                     <template v-if="!task.is_completed">
                                         <Button v-if="!task.is_running" variant="secondary" size="sm" @click="startTimer(task.id)">{{

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PaymentController;
@@ -27,14 +28,15 @@ Route::get('report', [ReportController::class, 'index'])
 // The domain hierarchy (Client -> Project -> Task). `scoped()` enforces the URL
 // nesting at the routing layer: a project must belong to the client in the URL,
 // a task to that project — mismatched IDs 404 before a controller runs.
-// Clients/projects have no detail pages (`show` omitted; lists link to the child
-// listing or to edit). A *task* is the exception: it carries rich content (a full
-// description body + attachments), so it has a `show` detail page. Ownership is
-// enforced by the model policies.
+// Every level's "detail" is a single page: clients/projects have none (`show`
+// omitted; lists link to the child listing or to edit), while a *task* has the
+// mirror shape — a `show` page that is ALSO its editor (so `edit` is omitted).
+// The task page carries the rich content (full description body + attachments)
+// the rest of the hierarchy lacks. Ownership is enforced by the model policies.
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clients', ClientController::class)->except('show');
     Route::resource('clients.projects', ProjectController::class)->scoped()->except('show');
-    Route::resource('clients.projects.tasks', TaskController::class)->scoped();
+    Route::resource('clients.projects.tasks', TaskController::class)->scoped()->except('edit');
 
     // The payment ledger. Only store/destroy — there is no listing (payments are
     // rendered inline on the project) and no detail/edit page. `scoped()` enforces
@@ -42,6 +44,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('clients.projects.payments', PaymentController::class)
         ->scoped()
         ->only(['store', 'destroy']);
+
+    // Attachments (files + links) on a task. Upload is nested + scoped so the URL
+    // nesting must be real; stream/delete are flat by attachment id (the Trash
+    // routes precedent) and gated by AttachmentPolicy. `show` streams the file
+    // from a private disk — there is no public URL.
+    Route::post('clients/{client}/projects/{project}/tasks/{task}/attachments', [AttachmentController::class, 'store'])
+        ->scopeBindings()
+        ->name('clients.projects.tasks.attachments.store');
+    Route::get('attachments/{attachment}', [AttachmentController::class, 'show'])->name('attachments.show');
+    Route::delete('attachments/{attachment}', [AttachmentController::class, 'destroy'])->name('attachments.destroy');
 
     // Completion toggles. Explicit POSTs (like the timers below) with scoped
     // bindings so the URL nesting must be real.

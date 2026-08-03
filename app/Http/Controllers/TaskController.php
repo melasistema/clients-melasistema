@@ -34,13 +34,18 @@ class TaskController extends Controller
     }
 
     /**
-     * The task detail page — the home for the full description body and the
-     * task's attachments. (The rest of the hierarchy has no detail pages; a task
-     * earns one because it carries rich content.)
+     * The task page — its detail view *and* its editor in one. It hosts the full
+     * description body and the task's attachments, and the title/description/time
+     * are edited inline here (there is no separate edit page). The rest of the
+     * hierarchy has no detail page; a task earns one because it carries rich content.
      */
     public function show(Client $client, Project $project, Task $task): Response
     {
         $this->authorize('view', $task);
+
+        // The detail page renders the task's attachments (files + links); load
+        // them so the gallery has them without a lazy query per attachment.
+        $task->load('attachments');
 
         return Inertia::render('Tasks/Show', [
             'client' => $client,
@@ -75,29 +80,14 @@ class TaskController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Client $client, Project $project, Task $task): Response
-    {
-        $this->authorize('update', $task);
-
-        $project->loadMissing('tasks', 'payments');
-
-        return Inertia::render('Tasks/Edit', [
-            'client' => $client,
-            'project' => $project,
-            'task' => $task,
-        ]);
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Update the specified resource in storage. Editing happens inline on the task
+     * page (show), so redirect back there to keep the user in place.
      */
     public function update(UpdateTaskRequest $request, Client $client, Project $project, Task $task): RedirectResponse
     {
         $task->update($request->validated());
 
-        return redirect()->route('clients.projects.tasks.index', [$client->id, $project->id]);
+        return redirect()->route('clients.projects.tasks.show', [$client->id, $project->id, $task->id]);
     }
 
     /**

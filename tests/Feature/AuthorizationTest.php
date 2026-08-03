@@ -56,7 +56,6 @@ test('a user cannot touch another user\'s tasks or timers', function () {
     $this->actingAs($attacker)->get(route('clients.projects.tasks.index', [$client, $project]))->assertForbidden();
     $this->actingAs($attacker)->get(route('clients.projects.tasks.show', [$client, $project, $task]))->assertForbidden();
     $this->actingAs($attacker)->post(route('clients.projects.tasks.store', [$client, $project]), [])->assertForbidden();
-    $this->actingAs($attacker)->get(route('clients.projects.tasks.edit', [$client, $project, $task]))->assertForbidden();
     $this->actingAs($attacker)->put(route('clients.projects.tasks.update', [$client, $project, $task]), [])->assertForbidden();
     $this->actingAs($attacker)->delete(route('clients.projects.tasks.destroy', [$client, $project, $task]))->assertForbidden();
     $this->actingAs($attacker)->post(route('clients.projects.tasks.startTimer', [$client, $project, $task]))->assertForbidden();
@@ -71,7 +70,6 @@ test('the owner can access their own hierarchy', function () {
     $this->actingAs($owner)->get(route('clients.projects.index', $client))->assertOk();
     $this->actingAs($owner)->get(route('clients.projects.tasks.index', [$client, $project]))->assertOk();
     $this->actingAs($owner)->get(route('clients.projects.tasks.show', [$client, $project, $task]))->assertOk();
-    $this->actingAs($owner)->get(route('clients.projects.tasks.edit', [$client, $project, $task]))->assertOk();
 });
 
 test('route scoping rejects a project that does not belong to the client in the url', function () {

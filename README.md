@@ -67,7 +67,30 @@ ticking.
   task — until you dismiss it. Change pages all you like; you won't lose your
   place.
 
-![The Tasks list for a project — one task timing live (green "Running" clock) with a Stop button, another stopped, each row showing total time, task earnings, and Start/Stop, Complete and Edit actions.](assets/screenshots/04-tasks-melafreelance.png)
+![The Tasks list for a project — one task timing live (green "Running" clock) with a Stop button, another stopped, each row showing total time, task earnings, and Start/Stop, Complete and Open actions.](assets/screenshots/04-tasks-melafreelance.png)
+
+### Open a task: notes, timing, and the files that go with it
+
+Click any task — from the list, or straight from the timer bar — to open its own
+page. It's the task's detail view and its editor in one, so everything you need is
+in a single place:
+
+- **Edit inline.** Give it a short, scannable title and a full multi-line
+  description, and fine-tune the tracked time, then **Save** without leaving the
+  page.
+- **Time and money at a glance.** Total time, the live timer, and what the task has
+  earned sit together, with **Start/Stop** and **Complete** right there.
+- **Attach what you actually work with.** Drag in screenshots, PDFs or HTML
+  exports, **paste a screenshot straight from your clipboard**, or add **links** —
+  a Figma file, a staging URL, shared notes. Files and links live in one gallery:
+  images preview as thumbnails, documents open in a click, and anything can be
+  removed with a confirm.
+
+Your files are stored **privately** and streamed only to you through the app —
+nothing is dropped in a public folder or handed a shareable URL. Remove an
+attachment (or the whole task) and its file is cleaned up with it.
+
+![The task page for "Homepage build" — an inline editor for title, description and tracked time with a Save button, above Total time / Timer / Task earnings cards and Stop + Complete actions, and a Files & links gallery holding two image thumbnails and a Figma link, with a drop-zone that also accepts pasted screenshots.](assets/screenshots/04-tasks-show-melafreelance.png)
 
 ### Payments: a ledger, not a checkbox
 
