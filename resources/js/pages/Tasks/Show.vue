@@ -2,6 +2,12 @@
 import AttachmentGallery from '@/components/AttachmentGallery.vue';
 import Heading from '@/components/Heading.vue';
 import InputError from '@/components/InputError.vue';
+// ProseMirror (~180KB gzip) rides in this page's chunk, not app.js — the Show page
+// is itself lazily loaded, so the weight only downloads when a task is opened. It is
+// imported directly (not via defineAsyncComponent): a nested dynamic import inside a
+// glob-loaded page created a Rollup chunk cycle that dropped this page's `src` from
+// the Vite manifest, 500ing the route ("Unable to locate file in Vite manifest").
+import MarkdownEditor from '@/components/MarkdownEditor.vue';
 import TimeInput from '@/components/TimeInput.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,11 +17,7 @@ import { useTranslations } from '@/composables/useTranslations';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project, type Task } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue';
-
-// The Markdown editor pulls in ProseMirror (~100KB+); lazy-load it so that weight
-// only ships on this page, not app-wide.
-const MarkdownEditor = defineAsyncComponent(() => import('@/components/MarkdownEditor.vue'));
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 
 const props = defineProps<{ client: Client; project: Project; task: Task }>();
 
