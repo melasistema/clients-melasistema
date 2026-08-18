@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.8.1](https://github.com/melasistema/clients-melasistema/compare/v1.8.0...v1.8.1) (2026-08-18)
+
+
+### Bug Fixes
+
+* **tasks:** import Markdown editor directly to keep the task page in the Vite manifest ([9fa5385](https://github.com/melasistema/clients-melasistema/commit/9fa53858750235a8f79280877c6dc06ab1794dde))
+
 ## [1.8.0](https://github.com/melasistema/clients-melasistema/compare/v1.7.0...v1.8.0) (2026-08-18)
 
 
