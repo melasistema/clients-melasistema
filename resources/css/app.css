@@ -2,6 +2,8 @@
 
 @import 'tw-animate-css';
 
+@plugin '@tailwindcss/typography';
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
@@ -164,4 +166,14 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+/* TipTap (MarkdownEditor.vue): the Placeholder extension only sets a
+   data-placeholder attribute on the empty first line — this renders it. */
+.tiptap p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: var(--muted-foreground);
+    float: left;
+    height: 0;
+    pointer-events: none;
 }

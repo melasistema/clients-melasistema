@@ -21,6 +21,23 @@ return [
     'deleted' => 'Deleted',
     'saved' => 'Saved.',
 
+    // Rich-text (Markdown) editor toolbar — used by MarkdownEditor.vue, reusable
+    // across task/project descriptions. Labels are the buttons' aria-labels.
+    'editor' => [
+        'bold' => 'Bold',
+        'italic' => 'Italic',
+        'heading1' => 'Heading 1',
+        'heading2' => 'Heading 2',
+        'bullet_list' => 'Bulleted list',
+        'ordered_list' => 'Numbered list',
+        'quote' => 'Quote',
+        'code' => 'Inline code',
+        'link' => 'Link',
+        'undo' => 'Undo',
+        'redo' => 'Redo',
+        'link_prompt' => 'Enter a URL (leave empty to remove the link):',
+    ],
+
     // App chrome: the persistent running-timer bar in the header (LiveTimer.vue),
     // shown on every page while a task's timer runs.
     'timer' => [

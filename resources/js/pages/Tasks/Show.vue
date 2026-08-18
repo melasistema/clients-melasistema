@@ -6,13 +6,16 @@ import TimeInput from '@/components/TimeInput.vue';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { useFormatters } from '@/composables/useFormatters';
 import { useTranslations } from '@/composables/useTranslations';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { type BreadcrumbItem, type Client, type Project, type Task } from '@/types';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue';
+
+// The Markdown editor pulls in ProseMirror (~100KB+); lazy-load it so that weight
+// only ships on this page, not app-wide.
+const MarkdownEditor = defineAsyncComponent(() => import('@/components/MarkdownEditor.vue'));
 
 const props = defineProps<{ client: Client; project: Project; task: Task }>();
 
@@ -103,8 +106,8 @@ const runningElapsed = computed(() => {
                 </div>
 
                 <div class="mt-4 grid gap-2">
-                    <Label for="description">{{ __('tasks.form.description') }}</Label>
-                    <Textarea id="description" v-model="form.description" rows="5" />
+                    <Label>{{ __('tasks.form.description') }}</Label>
+                    <MarkdownEditor v-model="form.description" :placeholder="__('tasks.form.description_placeholder')" />
                     <p class="text-xs text-muted-foreground">{{ __('tasks.form.description_hint') }}</p>
                     <InputError :message="form.errors.description" />
                 </div>

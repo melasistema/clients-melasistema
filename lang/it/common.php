@@ -21,6 +21,23 @@ return [
     'deleted' => 'Eliminato',
     'saved' => 'Salvato.',
 
+    // Barra strumenti dell'editor rich-text (Markdown) — usata da MarkdownEditor.vue,
+    // riutilizzabile per le descrizioni di attività/progetti. Le etichette sono gli aria-label.
+    'editor' => [
+        'bold' => 'Grassetto',
+        'italic' => 'Corsivo',
+        'heading1' => 'Titolo 1',
+        'heading2' => 'Titolo 2',
+        'bullet_list' => 'Elenco puntato',
+        'ordered_list' => 'Elenco numerato',
+        'quote' => 'Citazione',
+        'code' => 'Codice inline',
+        'link' => 'Link',
+        'undo' => 'Annulla',
+        'redo' => 'Ripeti',
+        'link_prompt' => 'Inserisci un URL (lascia vuoto per rimuovere il link):',
+    ],
+
     // Struttura dell'app: la barra del timer in esecuzione nell'header (LiveTimer.vue),
     // mostrata su ogni pagina mentre il timer di un'attività è in corso.
     'timer' => [
