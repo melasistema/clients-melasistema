@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.8.0](https://github.com/melasistema/clients-melasistema/compare/v1.7.0...v1.8.0) (2026-08-18)
+
+
+### Features
+
+* **tasks:** rich Markdown description editor with WYSIWYG + rich paste ([1304d8f](https://github.com/melasistema/clients-melasistema/commit/1304d8fc2a879d905ca5b43a5459113d6247e6b0))
+
 ## [1.7.0](https://github.com/melasistema/clients-melasistema/compare/v1.6.4...v1.7.0) (2026-08-03)
 
 
